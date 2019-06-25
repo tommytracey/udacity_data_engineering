@@ -113,8 +113,8 @@ venv.bak/
 **.dmg
 **Linux**/
 
-**/archive
-/archive
+# **/archive
+# /archive
 **/checkpoints
 **checkpoints
 **/**pycache**

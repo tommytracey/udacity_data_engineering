@@ -113,8 +113,8 @@ venv.bak/
 **.dmg
 **Linux**/
 
-**/archive
-**/checkpoints
+# **/archive
+# **/checkpoints
 **checkpoints
 **/**pycache**
 
@@ -172,5 +172,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-
