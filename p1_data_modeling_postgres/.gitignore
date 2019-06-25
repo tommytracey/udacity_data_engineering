@@ -114,6 +114,7 @@ venv.bak/
 **Linux**/
 
 **/archive
+archive
 **/checkpoints
 **checkpoints
 **/**pycache**
