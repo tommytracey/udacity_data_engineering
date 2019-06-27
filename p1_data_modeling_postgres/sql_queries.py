@@ -13,12 +13,12 @@ songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
     PRIMARY KEY (songplay_id),
     songplay_id  SERIAL,
-    start_time   BIGINT      NOT NULL,
-    user_id      INT         NOT NULL,
-    level        VARCHAR     NOT NULL,
-    song_id      VARCHAR     NOT NULL,
-    artist_id    VARCHAR     NOT NULL,
-    session_id   BIGINT      NOT NULL,
+    start_time   BIGINT          NOT NULL,
+    user_id      INT             NOT NULL,
+    level        VARCHAR(50)     NOT NULL,
+    song_id      VARCHAR(100)    NOT NULL,
+    artist_id    VARCHAR(100)    NOT NULL,
+    session_id   BIGINT          NOT NULL,
     location     TEXT,
     user_agent   TEXT)
 """)
@@ -26,19 +26,19 @@ CREATE TABLE IF NOT EXISTS songplays (
 user_table_create = ("""
 CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY (user_id),
-    user_id      INT         NOT NULL,
-    first_name   VARCHAR,
-    last_name    VARCHAR,
+    user_id      BIGINT          NOT NULL,
+    first_name   VARCHAR(100),
+    last_name    VARCHAR(100),
     gender       CHAR(1),
-    level        VARCHAR     NOT NULL)
+    level        VARCHAR(50)     NOT NULL)
 """)
 
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS songs (
     PRIMARY KEY (song_id),
-    song_id      VARCHAR     NOT NULL,
-    title        VARCHAR     NOT NULL,
-    artist_id    VARCHAR     NOT NULL,
+    song_id      VARCHAR(100)    NOT NULL,
+    title        VARCHAR(255)    NOT NULL,
+    artist_id    VARCHAR(100)    NOT NULL,
     year         INT,
     duration     FLOAT)
 """)
@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS songs (
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artists (
     PRIMARY KEY (artist_id),
-    artist_id    VARCHAR     NOT NULL,
-    name         VARCHAR     NOT NULL,
+    artist_id    VARCHAR(100)    NOT NULL,
+    name         VARCHAR(255)    NOT NULL,
     location     TEXT,
     latitude     FLOAT,
     longitude    FLOAT)
@@ -56,13 +56,13 @@ CREATE TABLE IF NOT EXISTS artists (
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time (
     PRIMARY KEY (start_time),
-    start_time   TIMESTAMP   NOT NULL,
+    start_time   TIMESTAMP       NOT NULL,
     hour         INT,
     day          INT,
     week         INT,
     month        INT,
     year         INT,
-    weekday      VARCHAR)
+    weekday      VARCHAR(50))
 """)
 
 # INSERT RECORDS
