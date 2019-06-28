@@ -17,7 +17,13 @@ For instructions on how to setup and run this project go to the [starter code se
 ## Introduction
 A startup called Sparkify wants to analyze the data they've been collecting on songs and user activity on their new music streaming app. The analytics team is particularly interested in understanding what songs users are listening to. Currently, they don't have an easy way to query their data, which resides in a directory of JSON logs on user activity on the app, as well as a directory with JSON metadata on the songs in their app.
 
-They'd like a data engineer to create a Postgres database with tables designed to optimize queries on song play analysis, and bring you on the project. Your role is to create a database schema and ETL pipeline for this analysis. You'll be able to test your database and ETL pipeline by running queries given to you by the analytics team from Sparkify and compare your results with their expected results.
+They'd like a data engineer to create a Postgres database with tables designed to optimize queries on song play analysis. This could help Sparkify make future improvements to its music service by tracking things such as:
+- which songs and artists are most popular among Sparkify's users
+- variations in song/artist popularity across geographic region
+- the music interests of specific users (to inform future music recommendations)
+- the listening behavior of free vs. paid users
+
+Our role is to create a database schema and ETL pipeline for this analysis. We'll be able to test our database and ETL pipeline by running queries given to you by the analytics team from Sparkify and compare our results with their expected results.
 
 
 ##### &nbsp;
@@ -128,22 +134,76 @@ Below are the basic steps to complete the project:
 
 ##### &nbsp;
 
-## Implementation
-
-Discuss the purpose of this database in the context of the startup, Sparkify, and their analytical goals.
+## My Implementation
 
 ### Schema Design
 
-#### Notes:
-State and justify your database schema design and ETL pipeline.
+<img src="images/sparkify_erd.png" width="100%" align="top-left" alt="" title="Sparkify ERD" />
+*diagram created using [Lucid Chart](https://www.lucidchart.com)*
+
+#### Schema Notes:
+- Some of the identity fields are VARCHAR data types, while others are INT. For example, the source data for *song_id* and *artist_id* contain non numeric characters, so these are VARCHAR. Whereas, *user_id* only contains real numbers, so it is setup as an INT data type, and specifically the BIGINT data type to allow for a larger number of users.
+- The timestamp data in the log files is recorded as a BIGINT data type. I decided to store it in its original format in the *start_time* field of the `songplays` table. However, it is converted to a timestamp in the *start_time* field of the `time` table &mdash; which makes it easier to derive the other time values (*hour, day, week* etc.)
+- The *songs.duration, artists.latitude*, and *artists.longitude* data types are all set to FLOAT. But, for some reason when I export the schema information they show as data type DOUBLE. I couldn't figure out why this happens. Perhaps it's a bug in psycopg2. Regardless, it does not negatively affect the pipeline (other than allotting more space than is needed).
+
+
 
 ### Example Queries
+Here are some examples of queries I used in my implementation.
+
+```python
+## create `songplays` fact table
+songplay_table_create = ("""
+CREATE TABLE IF NOT EXISTS songplays (
+    PRIMARY KEY (songplay_id),
+    songplay_id  SERIAL,
+    start_time   BIGINT          NOT NULL,
+    user_id      INT             NOT NULL,
+    level        VARCHAR(50)     NOT NULL,
+    song_id      VARCHAR(100)    NOT NULL,
+    artist_id    VARCHAR(100)    NOT NULL,
+    session_id   BIGINT          NOT NULL,
+    location     TEXT,
+    user_agent   TEXT)
+""")
+```
+
+```python
+# find songs and artists that match records extracted from log files
+song_select = ("""SELECT songs.song_id, artists.artist_id FROM songs
+JOIN artists ON songs.artist_id=artists.artist_id
+WHERE songs.title=%s
+AND artists.name=%s
+AND songs.duration=%s
+""")
+```
+
+```python
+# insert the results from the `song_select` query above into the `songplays` table
+songplay_table_insert = ("""
+    INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (songplay_id)
+    DO UPDATE
+    SET start_time=EXCLUDED.start_time, user_id=EXCLUDED.user_id, level=EXCLUDED.level, song_id=EXCLUDED.song_id, artist_id=EXCLUDED.artist_id, session_id=EXCLUDED.session_id, location=EXCLUDED.location, user_agent=EXCLUDED.user_agent
+""")
+```
 
 
-### ETL Confirmation
 
+### ETL Output
+Here is the output after running `etl.py`. You can see that there's only one record inserted into the `songplays` table. This means, there's only one song within all 30 of the log files that matches any of the records in the `songs` table. Although this is the correct result, it's a bit disappointing. I wish Udacity had setup the project so there are hundreds of matches. It would make the analysis more interesting.  
 
-## Future Improvements
+```
+songplay row inserted:
+[483] (1542837407796, '15', 'paid', 'SOZCTXZ12AB0182364', 'AR5KOSW1187FB35FF4', 818, 'Chicago-Naperville-Elgin, IL-IN-WI', '"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/36.0.1985.125 Chrome/36.0.1985.125 Safari/537.36"')
+
+---------
+total log records checked in this file = 437
+total rows inserted = 1
+26/30 files processed.
+```
+
 
 
 ##### &nbsp;
