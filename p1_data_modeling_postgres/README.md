@@ -1,16 +1,13 @@
+<img src="images/postgres.jpeg" width="33%" align="right" alt="" title="PostgreSQL" />
 #### Udacity Data Engineering Nanodegree
 ### Project 1: Data Modeling with Postgres
 
 ##### &nbsp;
 
-<img src="images/postgres.jpeg" width="50%" align="right" alt="" title="PostgreSQL" />
-
 <!--- [//]: # (_Photo credit: []_) --->
 
-##### &nbsp;
-
-For instructions on how to setup and run this project go to the [starter code section.](https://github.com/tommytracey/udacity_data_engineering/p1_data_modeling_postgres#project-starter-code)
-##### &nbsp;
+<!--- For instructions on how to setup and run this project go to the [starter code section.](https://github.com/tommytracey/udacity_data_engineering/p1_data_modeling_postgres#project-starter-code)
+##### &nbsp; --->
 
 <!-- The write-up below is also available [here as a blog post](https://medium.com/@thomastracey/training-two-agents-to-play-tennis-8285ebfaec5f). -->
 
