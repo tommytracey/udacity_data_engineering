@@ -91,20 +91,20 @@ Using the song and log datasets, we need to create a star schema optimized for q
 
 #### Fact Table
 1. `songplays` &mdash; records in log data associated with song plays i.e. records with `page` = `NextSong`
- - *songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent*
+   - *songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent*
 
 #### Dimension Tables
 2. `users` &mdash; users in the app
- - *user_id, first_name, last_name, gender, level*
+   - *user_id, first_name, last_name, gender, level*
 
 3. `songs` &mdash; songs in music database
- - *song_id, title, artist_id, year, duration*
+   - *song_id, title, artist_id, year, duration*
 
 4. `artists` &mdash; artists in music database
- - *artist_id, name, location, latitude, longitude*
+   - *artist_id, name, location, latitude, longitude*
 
 5. `time` &mdash; timestamps of records in songplays broken down into specific units
- - *start_time, hour, day, week, month, year, weekday*
+   - *start_time, hour, day, week, month, year, weekday*
 
 ##### &nbsp;
 
@@ -127,16 +127,16 @@ README.md provides discussion on your project.
 Below are the basic steps to complete the project:
 
 1. **Create Tables**
-  1. Write CREATE statements in sql_queries.py to create each table.
-  1. Write DROP statements in sql_queries.py to drop each table if it exists.
-  1. Run create_tables.py to create your database and tables.
-  1. Run test.ipynb to confirm the creation of your tables with the correct columns. Make sure to click "Restart kernel" to close the connection to the database after running this notebook.
+   1. Write CREATE statements in sql_queries.py to create each table.
+   1. Write DROP statements in sql_queries.py to drop each table if it exists.
+   1. Run create_tables.py to create your database and tables.
+   1. Run test.ipynb to confirm the creation of your tables with the correct columns. Make sure to click "Restart kernel" to close the connection to the database after running this notebook.
 1. **Build ETL Processes**
-  1. Follow instructions in the etl.ipynb notebook to develop ETL processes for each table. At the end of each table section, or at the end of the notebook, run test.ipynb to confirm that records were successfully inserted into each table.
-  1. Remember to rerun create_tables.py to reset your tables before each time you run this notebook.
+   1. Follow instructions in the etl.ipynb notebook to develop ETL processes for each table. At the end of each table section, or at the end of the notebook, run test.ipynb to confirm that records were successfully inserted into each table.
+   1. Remember to rerun create_tables.py to reset your tables before each time you run this notebook.
 1. **Build ETL Pipeline**
-  1. Use what you've completed in etl.ipynb to complete etl.py, where you'll process the entire datasets. Remember to run create_tables.py before running etl.py to reset your tables.
-  1. Run test.ipynb to confirm your records were successfully inserted into each table.
+   1. Use what you've completed in etl.ipynb to complete etl.py, where you'll process the entire datasets. Remember to run create_tables.py before running etl.py to reset your tables.
+   1. Run test.ipynb to confirm your records were successfully inserted into each table.
 
 ##### &nbsp;
 
