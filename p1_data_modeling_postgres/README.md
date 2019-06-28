@@ -161,6 +161,7 @@ Here are some examples of queries I used in my implementation.
 
 ```python
 ## create `songplays` fact table
+
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
     PRIMARY KEY (songplay_id),
@@ -178,6 +179,7 @@ CREATE TABLE IF NOT EXISTS songplays (
 
 ```python
 # find songs and artists that match records extracted from log files
+
 song_select = ("""SELECT songs.song_id, artists.artist_id FROM songs
 JOIN artists ON songs.artist_id=artists.artist_id
 WHERE songs.title=%s
@@ -188,6 +190,7 @@ AND songs.duration=%s
 
 ```python
 # insert the results from the `song_select` query above into the `songplays` table
+
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
