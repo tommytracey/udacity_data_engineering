@@ -126,9 +126,9 @@ venv.bak/
 **/exercises
 **/.ipynb_checkpoints
 
-**/images
-!**/results/images
-**/**images
+# **/images
+# !**/results/images
+# **/**images
 **/photos
 **/**photos
 **/videos
