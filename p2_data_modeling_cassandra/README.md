@@ -1,7 +1,7 @@
 <img src="assets/cassandra_logo.png" width="25%" align="right" alt="" title="Cassandra logo" />
 
-#### Udacity Data Engineering Nanodegree
-### Project 2: Data Modeling with Cassandra
+### Udacity Data Engineering Nanodegree
+# Project 2: Data Modeling with Cassandra
 
 
 ##### &nbsp;
