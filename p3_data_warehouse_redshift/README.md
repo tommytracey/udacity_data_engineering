@@ -110,27 +110,29 @@ You can step through my implementation [here in this notebook]().
 
 ### Schema for Song Play Analysis
 Using the song and event datasets, here is a star schema optimized for queries on song play analysis. This includes the following tables.
+
 ##### &nbsp;
 
-
-#### Fact Table
-**songplays** &mdash; records in event data associated with song plays i.e. records with `page = NextSong`
+#### **Fact Table**
+- **songplays** &mdash; records in event data associated with song plays i.e. records with `page = NextSong`
   - _songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent_
 
+
 ##### &nbsp;
 
-#### Dimension Tables
-**users** &mdash; users in the app
-- _user_id, first_name, last_name, gender, level_
+#### **Dimension Tables**
+- **users** &mdash; users in the app
+  - _user_id, first_name, last_name, gender, level_
 
-**songs** &mdash; songs in music database
-- _song_id, title, artist_id, year, duration_
+- **songs** &mdash; songs in music database
+  - _song_id, title, artist_id, year, duration_
 
-**artists** &mdash; artists in music database
-- _artist_id, name, location, lattitude, longitude_
+- **artists** &mdash; artists in music database
+  - _artist_id, name, location, lattitude, longitude_
 
-**time** &mdash; timestamps of records in songplays broken down into specific units
-- _start_time, hour, day, week, month, year, weekday_
+- **time** &mdash; timestamps of records in songplays broken down into specific units
+  - _start_time, hour, day, week, month, year, weekday_
+
 
 ##### &nbsp;
 
