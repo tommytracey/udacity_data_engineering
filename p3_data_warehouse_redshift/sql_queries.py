@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS staging_events (
          artist VARCHAR,
            auth VARCHAR,
       firstName VARCHAR,
-         gender VARCHAR(1),
+         gender VARCHAR,
   iteminsession INTEGER,
        lastname VARCHAR,
          length DOUBLE PRECISION,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS staging_events (
          method VARCHAR,
            page VARCHAR,
    registration BIGINT,
-      sessionid INTEGER,
+      sessionid BIGINT,
            song VARCHAR,
          status INTEGER,
              ts BIGINT,
@@ -57,45 +57,45 @@ CREATE TABLE IF NOT EXISTS staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
-  songplay_id INTEGER IDENTITY(0,1) PRIMARY KEY SORTKEY,
+  songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
    start_time TIMESTAMP NOT NULL REFERENCES time(start_time),
       user_id INTEGER NOT NULL REFERENCES users(user_id),
-        level VARCHAR NOT NULL,
-      song_id VARCHAR NOT NULL REFERENCES songs(song_id) DISTKEY,
-    artist_id VARCHAR NOT NULL REFERENCES artists(artist_id) DISTKEY,
-   session_id INTEGER NOT NULL,
-     location VARCHAR,
-   user_agent VARCHAR
+        level VARCHAR(50) NOT NULL,
+      song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id) DISTKEY,
+    artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
+   session_id BIGINT NOT NULL,
+     location VARCHAR(255),
+   user_agent VARCHAR(500)
 );
 """)
 
 user_table_create = ("""
 CREATE TABLE IF NOT EXISTS users (
      user_id INTEGER NOT NULL PRIMARY KEY SORTKEY,
-  first_name VARCHAR NOT NULL,
-   last_name VARCHAR NOT NULL,
-      gender VARCHAR,
-       level VARCHAR NOT NULL
+  first_name VARCHAR(255) NOT NULL,
+   last_name VARCHAR(255) NOT NULL,
+      gender VARCHAR(1),
+       level VARCHAR(50) NOT NULL
 );
 """)
 
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS songs (
-    song_id VARCHAR PRIMARY KEY DISTKEY,
-      title VARCHAR NOT NULL,
-  artist_id VARCHAR NOT NULL REFERENCES artists(artist_id),
+    song_id VARCHAR(100) PRIMARY KEY DISTKEY,
+      title VARCHAR(255) NOT NULL,
+  artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id),
        year INTEGER,
-   duration FLOAT
+   duration DOUBLE PRECISION
 );
 """)
 
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artists (
-  artist_id VARCHAR PRIMARY KEY DISTKEY,
-       name VARCHAR NOT NULL,
-   location VARCHAR,
-  lattitude FLOAT,
-  longitude FLOAT
+  artist_id VARCHAR(50) PRIMARY KEY DISTKEY,
+       name VARCHAR(255) NOT NULL,
+   location VARCHAR(255),
+  lattitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION
 )
 DISTSTYLE all;
 """)
