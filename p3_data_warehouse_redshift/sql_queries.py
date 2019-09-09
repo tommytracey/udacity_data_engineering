@@ -18,123 +18,138 @@ time_table_drop = "DROP TABLE IF EXISTS time;"
 # CREATE TABLES
 
 staging_events_table_create= ("""
-CREATE TABLE IF NOT EXISTS staging_events (
-         artist VARCHAR,
-           auth VARCHAR,
-      firstName VARCHAR,
-         gender VARCHAR,
-  iteminsession INTEGER,
-       lastname VARCHAR,
-         length DOUBLE PRECISION,
-          level VARCHAR,
-       location TEXT,
-         method VARCHAR,
-           page VARCHAR,
-   registration BIGINT,
-      sessionid BIGINT,
-           song VARCHAR,
-         status INTEGER,
-             ts BIGINT,
-      useragent TEXT,
-         userid INTEGER
-);
+    CREATE TABLE IF NOT EXISTS staging_events (
+             artist VARCHAR,
+               auth VARCHAR,
+          firstName VARCHAR,
+             gender VARCHAR,
+      iteminsession INTEGER,
+           lastname VARCHAR,
+             length DOUBLE PRECISION,
+              level VARCHAR,
+           location TEXT,
+             method VARCHAR,
+               page VARCHAR,
+       registration BIGINT,
+          sessionid BIGINT,
+               song VARCHAR,
+             status INTEGER,
+                 ts BIGINT,
+          useragent TEXT,
+             userid INTEGER
+    );
 """)
 
 staging_songs_table_create = ("""
-CREATE TABLE IF NOT EXISTS staging_songs (
-           song_id VARCHAR,
-         num_songs INTEGER,
-             title VARCHAR,
-          duration DOUBLE PRECISION,
-              year INTEGER,
-         artist_id VARCHAR,
-       artist_name VARCHAR,
-   artist_latitude DOUBLE PRECISION,
-  artist_longitude DOUBLE PRECISION,
-   artist_location VARCHAR
-);
+    CREATE TABLE IF NOT EXISTS staging_songs (
+               song_id VARCHAR,
+             num_songs INTEGER,
+                 title VARCHAR,
+              duration DOUBLE PRECISION,
+                  year INTEGER,
+             artist_id VARCHAR,
+           artist_name VARCHAR,
+       artist_latitude DOUBLE PRECISION,
+      artist_longitude DOUBLE PRECISION,
+       artist_location VARCHAR
+    );
 """)
 
 songplay_table_create = ("""
-CREATE TABLE IF NOT EXISTS songplays (
-  songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
-   start_time TIMESTAMP NOT NULL REFERENCES time(start_time),
-      user_id INTEGER NOT NULL REFERENCES users(user_id),
-        level VARCHAR(50) NOT NULL,
-      song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id) DISTKEY,
-    artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
-   session_id BIGINT NOT NULL,
-     location VARCHAR(255),
-   user_agent VARCHAR(500)
-);
+    CREATE TABLE IF NOT EXISTS songplays (
+      songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
+       start_time TIMESTAMP NOT NULL REFERENCES time(start_time),
+          user_id INTEGER NOT NULL REFERENCES users(user_id),
+            level VARCHAR(50) NOT NULL,
+          song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id) DISTKEY,
+        artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
+       session_id BIGINT NOT NULL,
+         location VARCHAR(255),
+       user_agent VARCHAR(500)
+    );
 """)
 
 user_table_create = ("""
-CREATE TABLE IF NOT EXISTS users (
-     user_id INTEGER NOT NULL PRIMARY KEY SORTKEY,
-  first_name VARCHAR(255) NOT NULL,
-   last_name VARCHAR(255) NOT NULL,
-      gender VARCHAR(1),
-       level VARCHAR(50) NOT NULL
-);
+    CREATE TABLE IF NOT EXISTS users (
+         user_id INTEGER NOT NULL PRIMARY KEY SORTKEY,
+      first_name VARCHAR(255) NOT NULL,
+       last_name VARCHAR(255) NOT NULL,
+          gender VARCHAR(1),
+           level VARCHAR(50) NOT NULL
+    );
 """)
 
 song_table_create = ("""
-CREATE TABLE IF NOT EXISTS songs (
-    song_id VARCHAR(100) PRIMARY KEY DISTKEY,
-      title VARCHAR(255) NOT NULL,
-  artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id),
-       year INTEGER,
-   duration DOUBLE PRECISION
-);
+    CREATE TABLE IF NOT EXISTS songs (
+        song_id VARCHAR(100) PRIMARY KEY DISTKEY,
+          title VARCHAR(255) NOT NULL,
+      artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id),
+           year INTEGER,
+       duration DOUBLE PRECISION
+    );
 """)
 
 artist_table_create = ("""
-CREATE TABLE IF NOT EXISTS artists (
-  artist_id VARCHAR(50) PRIMARY KEY DISTKEY,
-       name VARCHAR(255) NOT NULL,
-   location VARCHAR(255),
-  lattitude DOUBLE PRECISION,
-  longitude DOUBLE PRECISION
-)
-DISTSTYLE all;
+    CREATE TABLE IF NOT EXISTS artists (
+      artist_id VARCHAR(50) PRIMARY KEY DISTKEY,
+           name VARCHAR(255) NOT NULL,
+       location VARCHAR(255),
+      lattitude DOUBLE PRECISION,
+      longitude DOUBLE PRECISION
+    )
+    DISTSTYLE all;
 """)
 
 time_table_create = ("""
-CREATE TABLE IF NOT EXISTS time (
-  start_time TIMESTAMP PRIMARY KEY SORTKEY,
-        hour INTEGER,
-         day INTEGER,
-        week INTEGER,
-       month INTEGER,
-        year INTEGER,
-     weekday INTEGER
-)
-DISTSTYLE all;
+    CREATE TABLE IF NOT EXISTS time (
+      start_time TIMESTAMP PRIMARY KEY SORTKEY,
+            hour INTEGER,
+             day INTEGER,
+            week INTEGER,
+           month INTEGER,
+            year INTEGER,
+         weekday INTEGER
+    )
+    DISTSTYLE all;
 """)
 
 # STAGING TABLES
 
 staging_events_copy = ("""
-COPY staging_events
-FROM '{}'
-CREDENTIALS 'aws_iam_role={}'
-REGION 'us-west-2'
-FORMAT AS JSON '{}';
-""").format(CONFIG["S3"]["LOG_DATA"], CONFIG["IAM_ROLE"]["ARN"], CONFIG["S3"]["LOG_JSONPATH"])
+    COPY staging_events
+    FROM '{}'
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
+    FORMAT AS JSON '{}';
+    """).format(CONFIG["S3"]["LOG_DATA"], CONFIG["IAM_ROLE"]["ARN"], CONFIG["S3"]["LOG_JSONPATH"])
 
 staging_songs_copy = ("""
-COPY staging_songs
-FROM '{}'
-CREDENTIALS 'aws_iam_role={}'
-REGION 'us-west-2'
-JSON 'auto';
-""".format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
+    COPY staging_songs
+    FROM '{}'
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
+    FORMAT AS JSON 'auto';
+    """.format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
 
 # FINAL TABLES
 
+## Fact Table
 songplay_table_insert = ("""
+    INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+    SELECT  DISTINCT(e.ts)  AS start_time,
+            e.userId        AS user_id,
+            e.level         AS level,
+            s.song_id       AS song_id,
+            s.artist_id     AS artist_id,
+            e.sessionId     AS session_id,
+            e.location      AS location,
+            e.userAgent     AS user_agent
+    FROM staging_events e
+    JOIN staging_songs  s   ON (e.song = s.title AND e.artist = s.artist_name)
+    AND e.page  ==  'NextSong'
 """)
+
+## Dimension Tables
 
 user_table_insert = ("""
 """)
