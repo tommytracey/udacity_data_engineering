@@ -116,10 +116,20 @@ DISTSTYLE all;
 # STAGING TABLES
 
 staging_events_copy = ("""
-""").format()
+COPY staging_events
+FROM '{}'
+CREDENTIALS 'aws_iam_role={}'
+REGION 'us-west-2'
+FORMAT AS JSON '{}';
+""").format(CONFIG["S3"]["LOG_DATA"], CONFIG["IAM_ROLE"]["ARN"], CONFIG["S3"]["LOG_JSONPATH"])
 
 staging_songs_copy = ("""
-""").format()
+COPY staging_songs
+FROM '{}'
+CREDENTIALS 'aws_iam_role={}'
+REGION 'us-west-2'
+JSON 'auto';
+""".format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
 
 # FINAL TABLES
 
