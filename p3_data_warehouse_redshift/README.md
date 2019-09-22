@@ -1,4 +1,13 @@
-<img src="assets/cassandra_logo.png" width="25%" align="right" alt="" title="Cassandra logo" />
+
+---
+---
+
+# CURRENTLY IN PROGRESS
+
+---
+---
+
+<img src="assets/aws-redshift-logo.png" width="33%" align="right" alt="" title="AWS Redshift logo" />
 
 ### Udacity Data Engineering Nanodegree
 # Project 3: Create a Data Warehouse in Amazon Redshift
