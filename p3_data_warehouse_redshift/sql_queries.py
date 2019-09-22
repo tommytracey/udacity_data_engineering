@@ -23,6 +23,7 @@ time_table_drop = "DROP TABLE IF EXISTS time;"
 
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events (
+           event_id BIGINT IDENTITY(0, 1),
              artist VARCHAR,
                auth VARCHAR,
           firstName VARCHAR,
@@ -38,7 +39,7 @@ staging_events_table_create= ("""
           sessionid BIGINT,
                song VARCHAR,
              status INTEGER,
-                 ts BIGINT,
+                 ts BIGINT NOT NULL,
           useragent TEXT,
              userid INTEGER
     );
@@ -46,7 +47,7 @@ staging_events_table_create= ("""
 
 staging_songs_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_songs (
-               song_id VARCHAR,
+               song_id VARCHAR PRIMARY KEY,
              num_songs INTEGER,
                  title VARCHAR,
               duration DOUBLE PRECISION,
@@ -63,7 +64,7 @@ staging_songs_table_create = ("""
 
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users (
-         user_id INTEGER NOT NULL PRIMARY KEY SORTKEY,
+         user_id INTEGER PRIMARY KEY SORTKEY DISTKEY,
       first_name VARCHAR(255) NOT NULL,
        last_name VARCHAR(255) NOT NULL,
           gender VARCHAR(1),
@@ -75,7 +76,7 @@ song_table_create = ("""
     CREATE TABLE IF NOT EXISTS songs (
         song_id VARCHAR(100) PRIMARY KEY,
           title VARCHAR(255) NOT NULL,
-      artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) SORTKEY DISTKEY,
+      artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
            year INTEGER,
        duration DOUBLE PRECISION
     );
@@ -102,7 +103,6 @@ time_table_create = ("""
             year INTEGER,
          weekday INTEGER
     )
-    DISTSTYLE all;
 """)
 
 ## Create fact table
