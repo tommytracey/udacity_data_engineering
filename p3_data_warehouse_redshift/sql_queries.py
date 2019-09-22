@@ -5,6 +5,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
+
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
@@ -15,7 +16,10 @@ song_table_drop = "DROP TABLE IF EXISTS songs;"
 artist_table_drop = "DROP TABLE IF EXISTS artists;"
 time_table_drop = "DROP TABLE IF EXISTS time;"
 
+
 # CREATE TABLES
+
+## Create staging tables
 
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events (
@@ -55,6 +59,8 @@ staging_songs_table_create = ("""
     );
 """)
 
+## Create fact table
+
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS songplays (
       songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
@@ -68,6 +74,8 @@ songplay_table_create = ("""
        user_agent VARCHAR(500)
     );
 """)
+
+## Create dimension tables
 
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users (
@@ -113,7 +121,10 @@ time_table_create = ("""
     DISTSTYLE all;
 """)
 
-# STAGING TABLES
+
+# LOAD DATA
+
+## Load data into staging tables
 
 staging_events_copy = ("""
     COPY staging_events
@@ -131,9 +142,9 @@ staging_songs_copy = ("""
     FORMAT AS JSON 'auto';
     """.format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
 
-# FINAL TABLES
 
-## Fact Table
+## Load data into fact table
+
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
     SELECT  DISTINCT(e.ts)  AS start_time,
@@ -149,7 +160,7 @@ songplay_table_insert = ("""
     AND e.page  ==  'NextSong'
 """)
 
-## Dimension Tables
+## Load data into dimension tables
 
 user_table_insert = ("""
 """)
@@ -162,6 +173,7 @@ artist_table_insert = ("""
 
 time_table_insert = ("""
 """)
+
 
 # QUERY LISTS
 
