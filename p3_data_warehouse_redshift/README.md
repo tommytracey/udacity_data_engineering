@@ -112,8 +112,8 @@ Below are steps you can follow to complete each component of this project.
 ##### &nbsp;
 
 ## My Implementation
-
-You can step through my implementation [here in this notebook]().
+IN PROGRESS
+<!-- You can step through my implementation [here in this notebook](). -->
 
 ##### &nbsp;
 
