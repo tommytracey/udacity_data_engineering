@@ -17,7 +17,7 @@ artist_table_drop = "DROP TABLE IF EXISTS artists;"
 time_table_drop = "DROP TABLE IF EXISTS time;"
 
 
-# CREATE TABLES
+# CREATE TABLES (7 total: 2 staging tables, 4 dimension tables, 1 fact table)
 
 ## Create staging tables
 
@@ -59,22 +59,6 @@ staging_songs_table_create = ("""
     );
 """)
 
-## Create fact table
-
-songplay_table_create = ("""
-    CREATE TABLE IF NOT EXISTS songplays (
-      songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
-       start_time TIMESTAMP NOT NULL REFERENCES time(start_time),
-          user_id INTEGER NOT NULL REFERENCES users(user_id),
-            level VARCHAR(50) NOT NULL,
-          song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id) DISTKEY,
-        artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
-       session_id BIGINT NOT NULL,
-         location VARCHAR(255),
-       user_agent VARCHAR(500)
-    );
-""")
-
 ## Create dimension tables
 
 user_table_create = ("""
@@ -89,9 +73,9 @@ user_table_create = ("""
 
 song_table_create = ("""
     CREATE TABLE IF NOT EXISTS songs (
-        song_id VARCHAR(100) PRIMARY KEY DISTKEY,
+        song_id VARCHAR(100) PRIMARY KEY,
           title VARCHAR(255) NOT NULL,
-      artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id),
+      artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) SORTKEY DISTKEY,
            year INTEGER,
        duration DOUBLE PRECISION
     );
@@ -121,6 +105,22 @@ time_table_create = ("""
     DISTSTYLE all;
 """)
 
+## Create fact table
+
+songplay_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songplays (
+      songplay_id BIGINT IDENTITY(0,1) PRIMARY KEY SORTKEY,
+       start_time TIMESTAMP NOT NULL REFERENCES time(start_time),
+          user_id INTEGER NOT NULL REFERENCES users(user_id),
+            level VARCHAR(50) NOT NULL,
+          song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id) DISTKEY,
+        artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
+       session_id BIGINT NOT NULL,
+         location VARCHAR(255),
+       user_agent VARCHAR(500)
+    );
+""")
+
 
 # LOAD DATA
 
@@ -142,6 +142,19 @@ staging_songs_copy = ("""
     FORMAT AS JSON 'auto';
     """.format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
 
+## Load data into dimension tables
+
+user_table_insert = ("""
+""")
+
+song_table_insert = ("""
+""")
+
+artist_table_insert = ("""
+""")
+
+time_table_insert = ("""
+""")
 
 ## Load data into fact table
 
@@ -158,20 +171,6 @@ songplay_table_insert = ("""
     FROM staging_events e
     JOIN staging_songs  s   ON (e.song = s.title AND e.artist = s.artist_name)
     AND e.page  ==  'NextSong'
-""")
-
-## Load data into dimension tables
-
-user_table_insert = ("""
-""")
-
-song_table_insert = ("""
-""")
-
-artist_table_insert = ("""
-""")
-
-time_table_insert = ("""
 """)
 
 
