@@ -27,20 +27,20 @@ staging_events_table_create= ("""
                auth VARCHAR,
           firstName VARCHAR,
              gender VARCHAR,
-      iteminsession INTEGER,
-           lastname VARCHAR,
+      itemInSession INTEGER,
+           lastName VARCHAR,
              length DOUBLE PRECISION,
               level VARCHAR,
            location TEXT,
              method VARCHAR,
                page VARCHAR,
        registration BIGINT,
-          sessionid BIGINT,
+          sessionId BIGINT,
                song VARCHAR,
              status INTEGER,
                  ts BIGINT NOT NULL,
-          useragent TEXT,
-             userid INTEGER
+          userAgent TEXT,
+             userId INTEGER
     );
 """)
 
@@ -159,7 +159,7 @@ time_table_insert = ("""
 
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
-    SELECT  DISTINCT(e.ts)  AS start_time,
+    SELECT  e.ts            AS start_time,
             e.userId        AS user_id,
             e.level         AS level,
             s.song_id       AS song_id,
