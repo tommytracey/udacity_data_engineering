@@ -38,7 +38,7 @@ staging_events_table_create= ("""
           sessionId BIGINT,
                song VARCHAR,
              status INTEGER,
-                 ts BIGINT NOT NULL,
+                 ts BIGINT,
           userAgent TEXT,
              userId INTEGER
     );
@@ -86,7 +86,7 @@ artist_table_create = ("""
       artist_id VARCHAR(50) PRIMARY KEY DISTKEY,
            name VARCHAR(255) NOT NULL,
        location VARCHAR(255),
-      lattitude DOUBLE PRECISION,
+      latitude DOUBLE PRECISION,
       longitude DOUBLE PRECISION
     )
     DISTSTYLE all;
@@ -144,32 +144,66 @@ staging_songs_copy = ("""
 ## Load data into dimension tables
 
 user_table_insert = ("""
+    INSERT INTO users (user_id, first_name, last_name, gender, level)
+    SELECT DISINCT userID,
+                   firstName,
+                   lastName,
+                   gender,
+                   level,
+    FROM staging_events
+    WHERE userID IS NOT NULL;
 """)
 
 song_table_insert = ("""
+    INSERT INTO songs (song_id, title, artist_id, year, duration)
+    SELECT DISTINCT song_id,
+                    title,
+                    artist_id,
+                    year,
+                    duration
+    FROM staging_songs
+    WHERE song_id IS NOT NULL;
 """)
 
 artist_table_insert = ("""
+    INSERT INTO artists (artist_id, name, location, latitude, longitude)
+    SELECT DISTINCT artist_id,
+                    artist_name,
+                    artist_location,
+                    artist_latitude,
+                    artist_longitude
+    FROM staging_songs
+    WHERE artist_id IS NOT NULL;
 """)
 
 time_table_insert = ("""
+    INSERT INTO time (start_time, hour, day, week, month, year, weekday)
+    SELECT DISTINCT ts,
+                    EXTRACT (hour FROM ts),
+                    EXTRACT (day FROM ts),
+                    EXTRACT (week FROM ts),
+                    EXTRACT (month FROM ts),
+                    EXTRACT (year FROM ts),
+                    EXTRACT (weekday FROM ts)
+    FROM staging_events
+    WHERE ts IS NOT NULL;
 """)
 
 ## Load data into fact table
 
 songplay_table_insert = ("""
     INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
-    SELECT  e.ts            AS start_time,
-            e.userId        AS user_id,
-            e.level         AS level,
-            s.song_id       AS song_id,
-            s.artist_id     AS artist_id,
-            e.sessionId     AS session_id,
-            e.location      AS location,
-            e.userAgent     AS user_agent
-    FROM staging_events e
-    JOIN staging_songs  s   ON (e.song = s.title AND e.artist = s.artist_name)
-    AND e.page  ==  'NextSong'
+    SELECT  se.ts            AS start_time,
+            se.userId        AS user_id,
+            se.level         AS level,
+            ss.song_id       AS song_id,
+            ss.artist_id     AS artist_id,
+            se.sessionId     AS session_id,
+            se.location      AS location,
+            se.userAgent     AS user_agent
+    FROM staging_events se
+    JOIN staging_songs  ss   ON (se.song = ss.title AND se.artist = ss.artist_name)
+    AND se.page  ==  'NextSong'
 """)
 
 
