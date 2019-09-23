@@ -118,6 +118,8 @@ Below are steps taken to build each component of this project.
 ### Running the Project
 Here are the steps to run my implementation of this project:
 
+1. Create a python environment with the dependencies listed on `requirements.txt`
+
 1. Add your AWS keys to `dwh.cfg` in the project root folder.
 
 1. Create a data warehouse cluster in AWS Redshift:
