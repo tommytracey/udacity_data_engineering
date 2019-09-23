@@ -42,7 +42,7 @@ To complete the project, you need to:
 
 ##### &nbsp;
 
-## Project Setup & Instructions
+## Project Scope
 
 ##### &nbsp;
 
@@ -90,8 +90,8 @@ The project template includes four files:
 
 ##### &nbsp;
 
-### Project Steps
-Below are steps you can follow to complete each component of this project.
+### Implementation Steps
+Below are steps taken to build each component of this project.
 
 #### Create Table Schemas
 1. Design schemas for your fact and dimension tables
@@ -112,8 +112,28 @@ Below are steps you can follow to complete each component of this project.
 ##### &nbsp;
 
 ## My Implementation
-IN PROGRESS
+
+--> **IN PROGRESS**
+
+### Running the Project
+The basic steps to running my implementation of this project are:
+
+1. Create a data warehouse cluster in AWS Redshift
+`$ python create_cluster.py`
+
+2. Create the Postgres tables
+`$ python create_tables.py`
+
+3. Extracting data from source files and loading it into the datawarehouse tables.
+`$ python etl.py`
+
+4. Run data analysis visualizations (in notebook)
+
+5. Delete cluster
+
+
 <!-- You can step through my implementation [here in this notebook](). -->
+
 
 ##### &nbsp;
 
@@ -122,25 +142,19 @@ Using the song and event datasets, here is a star schema optimized for queries o
 
 ##### &nbsp;
 
-#### **Fact Table**
-- **songplays** &mdash; records in event data associated with song plays i.e. records with `page = NextSong`
-  - _songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent_
+#### Fact Table
+- **songplays** &mdash; records in event data associated with song plays, i.e. records with `page = NextSong`
 
 
-##### &nbsp;
-
-#### **Dimension Tables**
+#### Dimension Tables
 - **users** &mdash; users in the app
-  - _user_id, first_name, last_name, gender, level_
-
 - **songs** &mdash; songs in music database
-  - _song_id, title, artist_id, year, duration_
-
 - **artists** &mdash; artists in music database
-  - _artist_id, name, location, lattitude, longitude_
-
 - **time** &mdash; timestamps of records in songplays broken down into specific units
-  - _start_time, hour, day, week, month, year, weekday_
+
+#### Staging Tables
+- **staging_events** &mdash; temporary table for extracting event data from log files
+- **staging_songs** &mdash; temporary table for extracting song metadata from source files
 
 
 ##### &nbsp;
@@ -150,18 +164,28 @@ Using the song and event datasets, here is a star schema optimized for queries o
 <img src="assets/sparify-schema.png" width="100%" align="top-left" alt="" title="Sparkify Schema" />
 
 
-
 ##### &nbsp;
 
 ### Sample Queries
 
+#### Creating Tables
+```
+```
 
+#### Loading Data
+```
+```
 
+##### &nbsp;
+
+A complete set of SQL queries is available in [sql_queries.py]().
 
 
 ##### &nbsp;
 
 ### Analysis
+
+< insert charts from notebook >
 
 
 
