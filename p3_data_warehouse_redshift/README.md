@@ -116,20 +116,24 @@ Below are steps taken to build each component of this project.
 --> **IN PROGRESS**
 
 ### Running the Project
-The basic steps to running my implementation of this project are:
+Here are the steps to run my implementation of this project:
 
-1. Create a data warehouse cluster in AWS Redshift
+1. Add your AWS keys to `dwh.cfg` in the project root folder.
+
+1. Create a data warehouse cluster in AWS Redshift:
 `$ python create_cluster.py`
 
-2. Create the Postgres tables
+1. Add the cluster endpoint and ARN to `dwh.cfg` in the project root folder.
+
+1. Create the Postgres tables:
 `$ python create_tables.py`
 
-3. Extracting data from source files and loading it into the datawarehouse tables.
+1. Extract data from source files and load it into the datawarehouse tables:
 `$ python etl.py`
 
-4. Run data analysis visualizations (in notebook)
+1. Create visualizations for data analysis (via notebook).
 
-5. Delete cluster
+1. Delete the cluster: `$ python delete_cluster.py`
 
 
 <!-- You can step through my implementation [here in this notebook](). -->
