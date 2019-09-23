@@ -64,8 +64,8 @@ staging_songs_table_create = ("""
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users (
          user_id INTEGER PRIMARY KEY SORTKEY DISTKEY,
-      first_name VARCHAR(255) NOT NULL,
-       last_name VARCHAR(255) NOT NULL,
+      first_name VARCHAR(255),
+       last_name VARCHAR(255),
           gender VARCHAR(1),
            level VARCHAR(50) NOT NULL
     );
@@ -86,7 +86,7 @@ artist_table_create = ("""
       artist_id VARCHAR(50) PRIMARY KEY DISTKEY,
            name VARCHAR(255) NOT NULL,
        location VARCHAR(255),
-      latitude DOUBLE PRECISION,
+       latitude DOUBLE PRECISION,
       longitude DOUBLE PRECISION
     )
     DISTSTYLE all;
