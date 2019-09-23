@@ -147,7 +147,7 @@ Using the song and event datasets, here is a star schema optimized for queries o
 
 #### Schema Diagram
 
-<img src="assets/sparify-schema.png" width="100%" align="top-left" alt="" title="Sparkify ERD" />
+<img src="assets/sparify-schema.png" width="100%" align="top-left" alt="" title="Sparkify Schema" />
 
 
 
