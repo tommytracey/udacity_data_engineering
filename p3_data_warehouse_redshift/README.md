@@ -77,16 +77,6 @@ Below is an example of what the data in a log file, `2018-11-12-events.json`, lo
 
 <img src="assets/log-data-sample.png" width="100%" align="top-left" alt="" title="Log Data Sample" />
 
-##### &nbsp;
-
-### Project Template
-The project template includes four files:
-
-- `create_table.py` &mdash; creates the fact and dimension tables for the star schema in Redshift.
-- `etl.py` &mdash; loads data from S3 into staging tables on Redshift and then process that data into your analytics tables on Redshift.
-- `sql_queries.py` &mdash; defines the SQL statements, which are imported into the two other files above.
-- `README.md` &mdash; outlines the process and reasoning for the chosen approach to this project.
-
 
 ##### &nbsp;
 
@@ -110,6 +100,7 @@ Below are steps taken to build each component of this project.
 
 
 ##### &nbsp;
+---
 
 ## My Implementation
 
@@ -118,14 +109,15 @@ Below are steps taken to build each component of this project.
 ### Running the Project
 Here are the steps to run my implementation of this project:
 
-1. Create a python environment with the dependencies listed on `requirements.txt`
+1. Create a python environment with the dependencies listed in `requirements.txt`
+  - _Tip: Here is a great tool called [pipreqs](https://github.com/bndr/pipreqs). With pipreqs you can export a dependencies file  that only contains the set of packages imported in the project code. Much cleaner than using_ `pip freeze`.
 
 1. Add your AWS keys to `dwh.cfg` in the project root folder.
 
 1. Create a data warehouse cluster in AWS Redshift:
 `$ python create_cluster.py`
 
-1. Add the cluster endpoint and ARN to `dwh.cfg` in the project root folder.
+1. Add the cluster endpoint and ARN to `dwh.cfg`
 
 1. Create the Postgres tables:
 `$ python create_tables.py`
