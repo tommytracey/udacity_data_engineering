@@ -131,7 +131,7 @@ staging_events_copy = ("""
     CREDENTIALS 'aws_iam_role={}'
     REGION 'us-west-2'
     FORMAT AS JSON '{}';
-    """).format(CONFIG["S3"]["LOG_DATA"], CONFIG["IAM_ROLE"]["ARN"], CONFIG["S3"]["LOG_JSONPATH"])
+    """).format(config['S3']['LOG_DATA'], config['IAM_ROLE']['ARN'], config['S3']['LOG_JSONPATH'])
 
 staging_songs_copy = ("""
     COPY staging_songs
@@ -139,7 +139,7 @@ staging_songs_copy = ("""
     CREDENTIALS 'aws_iam_role={}'
     REGION 'us-west-2'
     FORMAT AS JSON 'auto';
-    """.format(CONFIG["S3"]["SONG_DATA"], CONFIG["IAM_ROLE"]["ARN"])
+    """).format(config['S3']['SONG_DATA'], config['IAM_ROLE']['ARN'])
 
 ## Load data into dimension tables
 
