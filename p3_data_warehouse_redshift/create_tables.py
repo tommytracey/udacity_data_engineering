@@ -13,6 +13,7 @@ def drop_tables(cur, conn):
 def create_tables(cur, conn):
     print("Creating new tables...")
     for query in create_table_queries:
+        print("Executing query '{}'...".format(query))
         cur.execute(query)
         conn.commit()
     print("New tables created")
