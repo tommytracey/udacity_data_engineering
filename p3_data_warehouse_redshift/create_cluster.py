@@ -93,25 +93,6 @@ def authorize_ingress(ec2, props, port):
         print(e)
 
 
-def delete_cluster(redshift, cluster_identifier):
-    print("Deleting cluster...")
-    redshift.delete_cluster(
-        ClusterIdentifier=cluster_identifier,
-        SkipFinalClusterSnapshot=True
-    )
-
-
-def delete_role(iam, role_name):
-    print("Deleting IAM role...")
-    iam.detach_role_policy(
-        RoleName=role_name,
-        PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
-    )
-    iam.delete_role(
-        RoleName=role_name
-    )
-
-
 def main():
     print('Parsing config file...')
     config = configparser.ConfigParser()
