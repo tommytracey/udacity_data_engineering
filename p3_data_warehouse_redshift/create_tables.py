@@ -13,10 +13,24 @@ def drop_tables(cur, conn):
 def create_tables(cur, conn):
     print("Creating new tables...")
     for query in create_table_queries:
-        print("Executing query '{}'...".format(query))
+        # print("Executing query '{}'...".format(query))
         cur.execute(query)
         conn.commit()
     print("New tables created")
+
+def verify_tables(cur, conn):
+    '''Prints all tables and columns created in Redshift'''
+
+    cur.execute("""
+        SELECT *
+        FROM pg_table_def
+        WHERE schemaname ='public';
+    """)
+    rows = cur.fetchall()
+    conn.commit()
+    print("\nschemaname | tablename | column | type | encoding | distkey | sortkey | notnull\n")
+    for row in rows:
+        print(row)
 
 
 def main():
@@ -30,6 +44,7 @@ def main():
 
     drop_tables(cur, conn)
     create_tables(cur, conn)
+    # verify_tables(cur, conn)
 
     conn.close()
 
