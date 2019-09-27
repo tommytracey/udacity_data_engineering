@@ -31,7 +31,7 @@ staging_events_table_create= ("""
            lastName VARCHAR,
              length DOUBLE PRECISION,
               level VARCHAR,
-           location TEXT,
+           location VARCHAR(1024),
              method VARCHAR,
                page VARCHAR,
        registration BIGINT,
@@ -39,23 +39,23 @@ staging_events_table_create= ("""
                song VARCHAR,
              status INTEGER,
                  ts BIGINT,
-          userAgent TEXT,
+          userAgent VARCHAR(1024),
              userId INTEGER
     );
 """)
 
 staging_songs_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_songs (
-               song_id VARCHAR PRIMARY KEY,
+               song_id VARCHAR,
              num_songs INTEGER,
                  title VARCHAR,
               duration DOUBLE PRECISION,
                   year INTEGER,
              artist_id VARCHAR,
-           artist_name VARCHAR,
+           artist_name VARCHAR(1024),
        artist_latitude DOUBLE PRECISION,
       artist_longitude DOUBLE PRECISION,
-       artist_location VARCHAR
+       artist_location VARCHAR(1024)
     );
 """)
 
