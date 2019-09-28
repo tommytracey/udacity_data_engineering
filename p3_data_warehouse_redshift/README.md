@@ -127,7 +127,7 @@ Here are the steps to run my implementation of this project:
 
 1. Create visualizations for data analysis (via notebook).
 
-1. Delete the cluster: `$ python delete_cluster.py`
+1. When you're done, delete the cluster: `$ python delete_cluster.py`
 
 
 <!-- You can step through my implementation [here in this notebook](). -->
