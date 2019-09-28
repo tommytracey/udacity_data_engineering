@@ -2,8 +2,6 @@ from botocore.exceptions import ClientError
 import boto3
 import configparser
 import json
-import pandas as pd
-from time import sleep
 
 
 def delete_cluster(redshift, cluster_identifier):

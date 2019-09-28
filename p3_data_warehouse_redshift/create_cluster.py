@@ -3,6 +3,7 @@ import boto3
 import configparser
 import json
 import pandas as pd
+import s3fs
 from time import sleep
 
 
@@ -169,11 +170,11 @@ def main():
         DWH_ENDPOINT = redshift_props['Endpoint']['Address']
         DWH_ROLE_ARN = redshift_props['IamRoles'][0]['IamRoleArn']
         print('DWH_ENDPOINT :: ', DWH_ENDPOINT)
-        config.set('CLUSTER', 'HOST', str(DWH_ENDPOINT))
-        print("--> config['CLUSTER']['HOST'] updated with new endpoint")
+        config.set('CLUSTER', 'host', str(DWH_ENDPOINT))
+        print("--> config['CLUSTER']['host'] updated with new endpoint")
         print('DWH_ROLE_ARN :: ', DWH_ROLE_ARN)
-        config.set('IAM_ROLE', 'ARN', DWH_ROLE_ARN)
-        print("--> config['IAM_ROLE']['ARN'] updated with new ARN")
+        config.set('IAM_ROLE', 'arn', DWH_ROLE_ARN)
+        print("--> config['IAM_ROLE']['arn'] updated with new ARN")
         with open('dwh.cfg', 'w') as configfile:
             config.write(configfile)
         print("--> config file 'dwh.cfg' updated with new endpoint and ARN")
