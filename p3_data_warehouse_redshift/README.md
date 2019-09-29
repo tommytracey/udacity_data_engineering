@@ -256,3 +256,7 @@ The following graphs provide some insight into user behavior and the most popula
 <img src="assets/songplays_by_gender_and_level.png" width="100%" align="upper-left" alt="" title="DWH Analysis" />
 
 ##### &nbsp;
+
+<img src="assets/final_counts.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
+
+##### &nbsp;
