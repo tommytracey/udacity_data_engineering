@@ -102,7 +102,7 @@ Below are steps taken to build each component of this project.
 Here are the steps to run my implementation of this project:
 
 1. Create a python environment with the dependencies listed in `requirements.txt` (or `requirements_full.txt` for the complete set of packages).
-  - _Tip: Here is a great tool called [pipreqs](https://github.com/bndr/pipreqs). With pipreqs you can export a dependencies file  that only contains the set of packages imported in the project code. Much cleaner than using_ `pip freeze`.
+    - _Tip: Here is a great tool called [pipreqs](https://github.com/bndr/pipreqs). With pipreqs you can export a dependencies file  that only contains the set of packages imported in the project code. Much cleaner than using_ `pip freeze`.
 
 1. Add your AWS keys to `dwh.cfg` in the project root folder.
 
