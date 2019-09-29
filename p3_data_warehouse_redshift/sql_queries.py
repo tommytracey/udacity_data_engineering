@@ -74,7 +74,7 @@ user_table_create = ("""
 song_table_create = ("""
     CREATE TABLE IF NOT EXISTS songs (
         song_id VARCHAR(100) PRIMARY KEY,
-          title VARCHAR(255) NOT NULL,
+          title VARCHAR(500) NOT NULL,
       artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
            year INTEGER,
        duration DOUBLE PRECISION
@@ -114,8 +114,8 @@ songplay_table_create = ("""
           song_id VARCHAR(100) NOT NULL REFERENCES songs(song_id),
         artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
        session_id BIGINT NOT NULL,
-         location VARCHAR(255),
-       user_agent VARCHAR(500)
+         location VARCHAR(1000),
+       user_agent VARCHAR(1000)
     );
 """)
 
