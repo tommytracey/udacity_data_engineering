@@ -2,8 +2,10 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import udf, col
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
+from pyspark.sql import types as T
 
 
 def parse_config():
@@ -17,8 +19,8 @@ def parse_config():
     os.environ['AWS_ACCESS_KEY_ID']=config['AWS_ACCESS_KEY_ID']
     os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS_SECRET_ACCESS_KEY']
 
-    # return data bucket locations
-    return (config['INPUT_DATA'], config['OUTPUT_DATA'])
+    # return data locations
+    return (config['INPUT_DATA_DIR'], config['OUTPUT_DATA_DIR'])
 
 
 def create_spark_session():
@@ -31,7 +33,7 @@ def create_spark_session():
     return spark
 
 
-def process_song_data(spark, input_data, output_data):
+def process_song_data(spark, input_data_dir, output_data_dir):
     """ ETL process for Sparkify song data
 
     This function:
@@ -41,30 +43,52 @@ def process_song_data(spark, input_data, output_data):
 
     Parameters:
         spark       : Spark session
-        input_data  : files containing song and artist metadata (JSON format)
-        output_data : song and artist dimension tables (parquet format)
+        input_data_dir  : files containing song and artist metadata (JSON format)
+        output_data_dir : song and artist dimension tables (parquet format)
 
     """
     # get filepath to song data file
-    song_data =
+    song_data = os.path.join(input_data_dir, 'song-data/A/A/A/*.json')
+
+    # define schema
+    song_schema = StructType([
+        StructField('artist_id', StringType()),
+        StructField('artist_latitude', DoubleType()),
+        StructField('artist_location', StringType()),
+        StructField('artist_longitude', DoubleType()),
+        StructField('artist_name', StringType()),
+        StructField('duration', DoubleType()),
+        StructField('num_songs', IntegerType()),
+        StructField('title', StringType()),
+        StructField('year', IntegerType()),
+    ])
 
     # read song data file
-    df =
+    df = spark.read.json(song_data, schema=song_schema)
 
     # extract columns to create songs table
-    songs_table =
+    song_fields = ['song_id','title','artist_id','year','duration']
+    songs_table = df.select(song_fields).dropDuplicates(['song_id'])
 
     # write songs table to parquet files partitioned by year and artist
-    songs_table
+    songs_out_path = str(output_data_dir + 'songs/' + 'songs.parquet')
+    songs_table.write.partitionBy('year', 'artist_id').parquet(songs_out_path)
 
     # extract columns to create artists table
-    artists_table =
+    artist_fields = ['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']
+    artists_table = df.select(artist_fields) \
+                    .withColumnRenamed('artist_name','artist') \
+                    .withColumnRenamed('artist_location','location') \
+                    .withColumnRenamed('artist_latitude','latitude') \
+                    .withColumnRenamed('artist_longitude','longitude') \
+                    .dropDuplicates(['artist_id'])
 
     # write artists table to parquet files
-    artists_table
+    artists_out_path = str(output_data_dir + 'artists/' + 'artists.parquet')
+    artists_table.write.parquet(artists_out_path)
 
 
-def process_log_data(spark, input_data, output_data):
+def process_log_data(spark, input_data_dir, output_data_dir):
     """ ETL process for Sparkify log data
 
     This function:
@@ -73,9 +97,9 @@ def process_log_data(spark, input_data, output_data):
     3. Stores the output data in S3
 
     Parameters:
-        spark       : Spark session
-        input_data  : files containing necessary metadata (JSON format)
-        output_data : user and time dimension tables + songplays fact table (parquet format)
+        spark           : Spark session
+        input_data_dir  : files containing necessary metadata (JSON format)
+        output_data_dir : user and time dimension tables + songplays fact table (parquet format)
 
     """
     # get filepath to log data file
@@ -121,14 +145,14 @@ def main():
     '''Executes entire ETL process'''
 
     # parse configuration data
-    input_data, output_data = parse_config()
+    input_data_dir, output_data_dir = parse_config()
 
     # initiate Spark session
     spark = create_spark_session()
 
     # run ETL process
-    process_song_data(spark, input_data, output_data)
-    process_log_data(spark, input_data, output_data)
+    process_song_data(spark, input_data_dir, output_data_dir)
+    process_log_data(spark, input_data_dir, output_data_dir)
 
 
 if __name__ == "__main__":
