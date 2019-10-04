@@ -20,7 +20,7 @@ def parse_config():
     os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS_SECRET_ACCESS_KEY']
 
     # return data locations
-    return (config['INPUT_DATA_DIR'], config['OUTPUT_DATA_DIR'])
+    return (config['DATA']['INPUT_DIR'], config['DATA']['OUTPUT_DIR'])
 
 
 def create_spark_session():
@@ -48,6 +48,7 @@ def process_song_data(spark, input_data_dir, output_data_dir):
 
     """
     # get filepath to song data file
+    ### TODO - update path to 'song_data/*/*/*/*.json'
     song_data = os.path.join(input_data_dir, 'song-data/A/A/A/*.json')
 
     # define schema
