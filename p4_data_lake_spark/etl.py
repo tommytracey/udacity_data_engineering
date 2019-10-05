@@ -124,7 +124,7 @@ def process_song_data(spark, song_df, output_data_dir):
 
     # write songs table to parquet files partitioned by year and artist
     songs_out_path = str(output_data_dir + 'songs/' + 'songs.parquet')
-    songs_table.write.partitionBy('year', 'artist_id').parquet(songs_out_path)
+    songs_table.write.parquet(songs_out_path, mode='overwrite', partitionBy=['year', 'artist_id'])
 
     # extract columns to create artists table
     artist_fields = ['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']
@@ -137,7 +137,7 @@ def process_song_data(spark, song_df, output_data_dir):
 
     # write artists table to parquet files
     artists_out_path = str(output_data_dir + 'artists/' + 'artists.parquet')
-    artists_table.write.parquet(artists_out_path)
+    artists_table.write.parquet(artists_out_path, mode='overwrite')
 
 
 def process_log_data(spark, song_df, log_df, output_data_dir):
@@ -156,7 +156,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     """
 
     # filter by actions for song plays
-    df = log_df.filter(df.page == 'NextSong')
+    df = log_df.filter(log_df.page == 'NextSong')
 
     # extract columns for users table
     user_fields = ['userId', 'firstName', 'lastName', 'gender', 'level']
@@ -164,7 +164,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     # write users table to parquet files
     users_out_path = str(output_data_dir + 'users/' + 'users.parquet')
-    users_table.write.parquet(users_out_path)
+    users_table.write.parquet(users_out_path, mode='overwrite')
 
     # create timestamp column from original timestamp column
     get_timestamp = udf(lambda ts: (ts/1000.0))
@@ -186,7 +186,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     # write time table to parquet files partitioned by year and month
     time_out_path = str(output_data_dir + 'time/' + 'time.parquet')
-    time_table.write.partitionBy('year', 'month').parquet(time_out_path)
+    time_table.write.parquet(time_out_path, mode='overwrite', partitionBy=['year', 'month'])
 
     # join song and log datasets
     df = df.join(song_df, song_df.title == df.song and song_df.artist_name == df.artist) \
@@ -208,7 +208,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     # write songplays table to parquet files partitioned by year and month
     songplays_out_path = str(output_data_dir + 'songplays/' + 'songplays.parquet')
-    songplays_table.write.partitionBy('year', 'month').parquet(songplays_out_path)
+    songplays_table.write.parquet(songplays_out_path, mode='overwrite', partitionBy=['year', 'month'])
 
 
 def main():
@@ -221,7 +221,7 @@ def main():
 
     song_files = 'data/song_data/*.json'   # relative path for testing
     log_files = 'data/log_data/*.json'     # relative path for testing
-    output_data_dir = 'data/output_data'   # relative path for testing
+    output_data_dir = 'data/output_data/'   # relative path for testing
 
     # parse config file and set AWS keys
     aws_keys()
