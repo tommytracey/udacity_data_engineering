@@ -149,7 +149,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     """ ETL process for Sparkify log data
 
     This function:
-    1. Creates song and artist tables
+    1. Creates users, time, and songplays tables
     2. Writes new tables to S3
 
     Parameters:
