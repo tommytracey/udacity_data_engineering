@@ -168,11 +168,11 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     # create timestamp column from original timestamp column
     get_timestamp = udf(lambda ts: (ts/1000.0))
-    df = df.withColumn('timestamp', get_timestamp(df.ts).TimestampType())
+    df = df.withColumn('timestamp', get_timestamp(df.ts))
 
     # create datetime column from original timestamp column
     get_datetime = udf(lambda ts: datetime.fromtimestamp(ts/1000.0))
-    df = df.withColumn('datetime', get_datetime(df.ts).TimestampType())
+    df = df.withColumn('datetime', get_datetime(df.ts))
 
     # extract columns to create time table
     time_table = df.select(
@@ -189,7 +189,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     time_table.write.parquet(time_out_path, mode='overwrite', partitionBy=['year', 'month'])
 
     # join song and log datasets
-    df = df.join(song_df, song_df.title == df.song and song_df.artist_name == df.artist) \
+    df = df.join(song_df, (song_df.title==df.song)&(song_df.artist_name==df.artist)) \
         .withColumn('songplay_id', monotonically_increasing_id())
 
     # extract columns from joined song and log datasets to create songplays table
@@ -237,6 +237,7 @@ def main():
     process_song_data(spark, song_df, output_data_dir)
     process_log_data(spark, song_df, log_df, output_data_dir)
 
-
+    print("ETL process completed")
+    
 if __name__ == "__main__":
     main()
