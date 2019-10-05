@@ -37,20 +37,9 @@ def create_spark_session():
     return spark
 
 
-def process_song_data(spark, song_files, output_data_dir):
-    """ ETL process for Sparkify song data
+def create_song_df(song_files):
+    '''Creates Spark data frame from source song files'''
 
-    This function:
-    1. Extracts input data from song files stored in S3
-    2. Performs data transformations and creates required tables
-    3. Stores the processed data in S3
-
-    Parameters:
-        spark            : Spark session
-        song_files       : path to song files containing input data (JSON format)
-        output_data_dir  : output path for song and artist dimension tables (parquet format)
-
-    """
     # define schema
     song_schema = StructType([
         StructField('artist_id', StringType(), True),
@@ -65,45 +54,13 @@ def process_song_data(spark, song_files, output_data_dir):
     ])
 
     # read song data file
-### TODO - update .cfg path to 'song_data/*/*/*/*.json'
-    df = spark.read.json(song_files, schema=song_schema)
+    song_df = spark.read.json(song_files, schema=song_schema)
 
-    # extract columns to create songs table
-    song_fields = ['song_id','title','artist_id','year','duration']
-    songs_table = df.select(song_fields).dropDuplicates(['song_id'])
+    return song_df
 
-    # write songs table to parquet files partitioned by year and artist
-    songs_out_path = str(output_data_dir + 'songs/' + 'songs.parquet')
-    songs_table.write.partitionBy('year', 'artist_id').parquet(songs_out_path)
+def create_log_df(log_files):
+    '''Creates Spark data frame from log files'''
 
-    # extract columns to create artists table
-    artist_fields = ['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']
-    artists_table = df.select(artist_fields) \
-                    .withColumnRenamed('artist_name','artist') \
-                    .withColumnRenamed('artist_location','location') \
-                    .withColumnRenamed('artist_latitude','latitude') \
-                    .withColumnRenamed('artist_longitude','longitude') \
-                    .dropDuplicates(['artist_id'])
-
-    # write artists table to parquet files
-    artists_out_path = str(output_data_dir + 'artists/' + 'artists.parquet')
-    artists_table.write.parquet(artists_out_path)
-
-
-def process_log_data(spark, log_data_dir, output_data_dir):
-    """ ETL process for Sparkify log data
-
-    This function:
-    1. Extracts input data from log files stored in S3
-    2. Performs data transformations and creates required tables
-    3. Stores the output data in S3
-
-    Parameters:
-        spark           : Spark session
-        log_files       : path to log files containing input data (JSON format)
-        output_data_dir : output path for user and time dimension tables + songplays fact table (parquet format)
-
-    """
     # define schema
     log_schema = StructType([
         StructField('artist', StringType(), True),
@@ -127,11 +84,64 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     ])
 
     # read log data file
-### TODO - update .cfg path to 'log_data/*/*/*.json'
     df = spark.read.json(log_files, schema=log_schema)
 
+    return log_df
+
+
+def process_song_data(spark, song_df, output_data_dir):
+    """ ETL process for Sparkify song data
+
+    This function:
+    1. Extracts input data from song files stored in S3
+    2. Performs data transformations and creates required tables
+    3. Stores the processed data in S3
+
+    Parameters:
+        spark            : Spark session
+        song_files       : path to song files containing input data (JSON format)
+        output_data_dir  : output path for song and artist dimension tables (parquet format)
+
+    """
+    # extract columns to create songs table
+    song_fields = ['song_id','title','artist_id','year','duration']
+    songs_table = song_df.select(song_fields).dropDuplicates(['song_id'])
+
+    # write songs table to parquet files partitioned by year and artist
+    songs_out_path = str(output_data_dir + 'songs/' + 'songs.parquet')
+    songs_table.write.partitionBy('year', 'artist_id').parquet(songs_out_path)
+
+    # extract columns to create artists table
+    artist_fields = ['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']
+    artists_table = song_df.select(artist_fields)
+                    .withColumnRenamed('artist_name','artist')
+                    .withColumnRenamed('artist_location','location')
+                    .withColumnRenamed('artist_latitude','latitude')
+                    .withColumnRenamed('artist_longitude','longitude')
+                    .dropDuplicates(['artist_id'])
+
+    # write artists table to parquet files
+    artists_out_path = str(output_data_dir + 'artists/' + 'artists.parquet')
+    artists_table.write.parquet(artists_out_path)
+
+
+def process_log_data(spark, song_df, log_df, output_data_dir):
+    """ ETL process for Sparkify log data
+
+    This function:
+    1. Extracts input data from log files stored in S3
+    2. Performs data transformations and creates required tables
+    3. Stores the output data in S3
+
+    Parameters:
+        spark           : Spark session
+        log_files       : path to log files containing input data (JSON format)
+        output_data_dir : output path for user and time dimension tables + songplays fact table (parquet format)
+
+    """
+
     # filter by actions for song plays
-    df = df.filter(df.page == 'NextSong')
+    df = log_df.filter(df.page == 'NextSong')
 
     # extract columns for users table
     user_fields = ['userId', 'firstName', 'lastName', 'gender', 'level']
@@ -150,19 +160,40 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     df = df.withColumn('datetime', get_datetime(df.ts).TimestampType())
 
     # extract columns to create time table
-    time_table =
+    time_table = df.select(
+        col('ts').alias('start_time'),
+        hour('datetime').alias('hour'),
+        dayofmonth('datetime').alias('day'),
+        weekofyear('datetime').alias('week'),
+        month('datetime').alias('month'),
+        year('datetime').alias('year')
+    ).dropDuplicates(['start_time'])
 
     # write time table to parquet files partitioned by year and month
-    time_table
+    time_out_path = str(output_data_dir + 'time/' + 'time.parquet')
+    time_table.write.partitionBy('year', 'month').parquet(time_out_path)
 
-    # read in song data to use for songplays table
-    song_df =
+    # join song and log datasets
+    df = df.join(song_df, song_df.title == df.song and song_df.artist_name == df.artist)
+        .withColumn('songplay_id', monotonically_increasing_id())
 
     # extract columns from joined song and log datasets to create songplays table
-    songplays_table =
+    songplays_table = df.select(
+        col('ts').alias('start_time'),
+        col('userId'),
+        col('level'),
+        col('song_id'),
+        col('artist_id'),
+        col('sessionId'),
+        col('location'),
+        col('userAgent'),
+        year('datetime').alias('year'),
+        month('datetime').alias('month')
+    )
 
     # write songplays table to parquet files partitioned by year and month
-    songplays_table
+    songplays_out_path = str(output_data_dir + 'songplays/' + 'songplays.parquet')
+    songplays_table.write.partitionBy('year', 'month').parquet(songplays_out_path)
 
 
 def main():
@@ -174,9 +205,13 @@ def main():
     # initiate Spark session
     spark = create_spark_session()
 
+    # create data frames
+    song_df = create_song_df(song_files)
+    log_df = create_log_df(log_files)
+
     # run ETL process
-    process_song_data(spark, song_files, output_data_dir)
-    process_log_data(spark, log_files, output_data_dir)
+    process_song_data(spark, song_df, output_data_dir)
+    process_log_data(spark, song_df, log_df, output_data_dir)
 
 
 if __name__ == "__main__":
