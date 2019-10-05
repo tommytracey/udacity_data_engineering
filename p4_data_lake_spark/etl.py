@@ -8,8 +8,8 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructType, StructField, TimestampType
 
 
-def parse_config():
-    '''Parses data from configuration file'''
+def aws_keys():
+    '''Parses configuration file and sets AWS keys'''
 
     # parse config file
     config = configparser.ConfigParser()
@@ -18,13 +18,6 @@ def parse_config():
     # set environment variables
     os.environ['AWS_ACCESS_KEY_ID']=config['AWS']['KEY']
     os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['SECRET']
-
-    # return data paths
-    song_files = config['DATA']['SONG_FILES']
-    log_files = config['DATA']['LOG_FILES']
-    output_data_dir = config['DATA']['OUTPUT_DIR']
-
-    return song_files, log_files, output_data_dir
 
 
 def create_spark_session():
@@ -221,8 +214,17 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 def main():
     '''Executes entire ETL process'''
 
-    # parse config file and retrieve data paths
-    song_files, log_files, output_data_dir = parse_config()
+    # define data paths
+    # song_files = ''
+    # log_files = ''
+    # output_data_dir = ''
+
+    song_files = 'data/song_data/*.json'   # relative path for testing
+    log_files = 'data/log_data/*.json'     # relative path for testing
+    output_data_dir = 'data/output_data'   # relative path for testing
+
+    # parse config file and set AWS keys
+    aws_keys()
 
     # initiate Spark session
     spark = create_spark_session()
