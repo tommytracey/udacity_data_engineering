@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import udf, col
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
-from pyspark.sql import types as T
+from pyspark.sql.types import DoubleType, IntegerType, StringType, StructType, StructField, TimestampType
 
 
 def parse_config():
@@ -142,12 +142,12 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     users_table.write.parquet(users_out_path)
 
     # create timestamp column from original timestamp column
-    get_timestamp = udf()
-    df =
+    get_timestamp = udf(lambda ts: (ts/1000.0).TimestampType())
+    df = df.withColumn('timestamp', get_timestamp(df.ts))
 
     # create datetime column from original timestamp column
-    get_datetime = udf()
-    df =
+    get_datetime = udf(lambda ts: datetime.fromtimestamp(ts/1000.0).TimestampType())
+    df = df.withColumn('datetime', get_datetime(df.ts))
 
     # extract columns to create time table
     time_table =
