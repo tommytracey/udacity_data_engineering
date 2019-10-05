@@ -38,7 +38,17 @@ def create_spark_session():
 
 
 def create_song_df(song_files):
-    '''Creates Spark data frame from source song files'''
+    """Creates dataframe from source song files
+
+    This function:
+        1. Defines a schema with data types for song metadata
+        2. Extracts input data from song files stored in S3 (JSON format)
+        3. Returns song data as Spark dataframe
+
+    Parameters:
+        song_files  : path to song files containing input data
+
+    """
 
     # define schema
     song_schema = StructType([
@@ -58,8 +68,19 @@ def create_song_df(song_files):
 
     return song_df
 
+
 def create_log_df(log_files):
-    '''Creates Spark data frame from log files'''
+    """Creates dataframe from source log files
+
+    This function:
+        1. Defines a schema with data types for log data
+        2. Extracts input data from log files stored in S3 (JSON format)
+        3. Returns log data as Spark dataframe
+
+    Parameters:
+        log_files  : path to log files containing input data
+
+    """
 
     # define schema
     log_schema = StructType([
@@ -93,14 +114,13 @@ def process_song_data(spark, song_df, output_data_dir):
     """ ETL process for Sparkify song data
 
     This function:
-    1. Extracts input data from song files stored in S3
-    2. Performs data transformations and creates required tables
-    3. Stores the processed data in S3
+    1. Creates song and artist tables
+    2. Writes new tables to S3
 
     Parameters:
         spark            : Spark session
-        song_files       : path to song files containing input data (JSON format)
-        output_data_dir  : output path for song and artist dimension tables (parquet format)
+        song_df          : Spark dataframe containing song source data
+        output_data_dir  : output path for newly created tables (parquet format)
 
     """
     # extract columns to create songs table
@@ -129,14 +149,14 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     """ ETL process for Sparkify log data
 
     This function:
-    1. Extracts input data from log files stored in S3
-    2. Performs data transformations and creates required tables
-    3. Stores the output data in S3
+    1. Creates song and artist tables
+    2. Writes new tables to S3
 
     Parameters:
-        spark           : Spark session
-        log_files       : path to log files containing input data (JSON format)
-        output_data_dir : output path for user and time dimension tables + songplays fact table (parquet format)
+        spark            : Spark session
+        song_df          : Spark dataframe containing song source data
+        log_df           : Spark dataframe containing log source data
+        output_data_dir  : output path for newly created tables (parquet format)
 
     """
 
