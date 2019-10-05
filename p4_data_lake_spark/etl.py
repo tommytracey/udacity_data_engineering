@@ -46,15 +46,15 @@ def create_song_df(spark, song_files):
 
     # define schema
     song_schema = StructType([
-        StructField('artist_id', StringType(), True),
-        StructField('artist_latitude', DoubleType(), True),
+        StructField('artist_id', StringType(), False),
+        StructField('artist_latitude', StringType(), True),
+        StructField('artist_longitude', StringType(), True),
         StructField('artist_location', StringType(), True),
-        StructField('artist_longitude', DoubleType(), True),
-        StructField('artist_name', StringType(), True),
-        StructField('duration', DoubleType(), True),
-        StructField('num_songs', IntegerType(), True),
-        StructField('title', StringType(), True),
-        StructField('year', IntegerType(), True),
+        StructField('artist_name', StringType(), False),
+        StructField('song_id', StringType(), False),
+        StructField('title', StringType(), False),
+        StructField('duration', DoubleType(), False),
+        StructField('year', IntegerType(), False)
     ])
 
     # read song data file
