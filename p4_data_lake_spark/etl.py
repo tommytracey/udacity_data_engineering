@@ -2,9 +2,8 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import monotonically_increasing_id
-from pyspark.sql.functions import udf, col
-from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
+from pyspark.sql.functions import udf, col, to_timestamp, monotonically_increasing_id
+from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format, to_date
 from pyspark.sql.types import DoubleType, IntegerType, LongType, StringType, StructType, StructField, TimestampType
 
 
@@ -167,21 +166,18 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     users_table.write.parquet(users_out_path, mode='overwrite')
 
     # create timestamp column from original timestamp column
-    get_timestamp = udf(lambda ts: (ts/1000.0))
+    time_format = 'yyyy-MM-dd HH:MM:ss z'
+    get_timestamp = udf(lambda x: datetime.fromtimestamp(x/1000), TimestampType())
     df = df.withColumn('timestamp', get_timestamp(df.ts))
-
-    # create datetime column from original timestamp column
-    get_datetime = udf(lambda ts: datetime.fromtimestamp(ts/1000.0))
-    df = df.withColumn('datetime', get_datetime(df.ts))
 
     # extract columns to create time table
     time_table = df.select(
-        col('ts').alias('start_time'),
-        hour('datetime').alias('hour'),
-        dayofmonth('datetime').alias('day'),
-        weekofyear('datetime').alias('week'),
-        month('datetime').alias('month'),
-        year('datetime').alias('year')
+        col('timestamp').alias('start_time'),
+        hour(col('timestamp')).alias('hour'),
+        dayofmonth(col('timestamp')).alias('day'),
+        weekofyear(col('timestamp')).alias('week'),
+        month(col('timestamp')).alias('month'),
+        year(col('timestamp')).alias('year')
     ).dropDuplicates(['start_time'])
 
     # write time table to parquet files partitioned by year and month
@@ -194,7 +190,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     # extract columns from joined song and log datasets to create songplays table
     songplays_table = df.select(
-        col('ts').alias('start_time'),
+        col('timestamp').alias('start_time'),
         col('userId'),
         col('level'),
         col('song_id'),
@@ -202,8 +198,8 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
         col('sessionId'),
         col('location'),
         col('userAgent'),
-        year('datetime').alias('year'),
-        month('datetime').alias('month')
+        year('timestamp').alias('year'),
+        month('timestamp').alias('month')
     )
 
     # write songplays table to parquet files partitioned by year and month
@@ -219,7 +215,7 @@ def main():
     # log_files = ''
     # output_data_dir = ''
 
-    song_files = 'data/song_data/*.json'   # relative path for testing
+    song_files = 'data/song_data/A/A/*/*.json'   # relative path for testing
     log_files = 'data/log_data/*.json'     # relative path for testing
     output_data_dir = 'data/output_data/'   # relative path for testing
 
@@ -238,6 +234,6 @@ def main():
     process_log_data(spark, song_df, log_df, output_data_dir)
 
     print("ETL process completed")
-    
+
 if __name__ == "__main__":
     main()
