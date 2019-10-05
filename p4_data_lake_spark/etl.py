@@ -53,15 +53,15 @@ def process_song_data(spark, song_files, output_data_dir):
     """
     # define schema
     song_schema = StructType([
-        StructField('artist_id', StringType()),
-        StructField('artist_latitude', DoubleType()),
-        StructField('artist_location', StringType()),
-        StructField('artist_longitude', DoubleType()),
-        StructField('artist_name', StringType()),
-        StructField('duration', DoubleType()),
-        StructField('num_songs', IntegerType()),
-        StructField('title', StringType()),
-        StructField('year', IntegerType()),
+        StructField('artist_id', StringType(), True),
+        StructField('artist_latitude', DoubleType(), True),
+        StructField('artist_location', StringType(), True),
+        StructField('artist_longitude', DoubleType(), True),
+        StructField('artist_name', StringType(), True),
+        StructField('duration', DoubleType(), True),
+        StructField('num_songs', IntegerType(), True),
+        StructField('title', StringType(), True),
+        StructField('year', IntegerType(), True),
     ])
 
     # read song data file
@@ -106,15 +106,24 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     """
     # define schema
     log_schema = StructType([
-        StructField('', StringType()),
-        StructField('', DoubleType()),
-        StructField('', StringType()),
-        StructField('', DoubleType()),
-        StructField('', StringType()),
-        StructField('', DoubleType()),
-        StructField('', IntegerType()),
-        StructField('', StringType()),
-        StructField('', IntegerType()),
+        StructField('artist', StringType(), True),
+        StructField('auth', StringType(), True),
+        StructField('firstName', StringType(), True),
+        StructField('gender', StringType(), True),
+        StructField('itemInSession', LongType(), True),
+        StructField('lastName', StringType(), True),
+        StructField('length', DoubleType(), True),
+        StructField('level', StringType(), True),
+        StructField('location', StringType(), True),
+        StructField('method', StringType(), True),
+        StructField('page', StringType(), True),
+        StructField('registration', DoubleType(), True),
+        StructField('sessionId', LongType(), True),
+        StructField('song', StringType(), True),
+        StructField('status', LongType(), True),
+        StructField('ts', LongType(), True),
+        StructField('userAgent', StringType(), True),
+        StructField('userId', StringType(), True),
     ])
 
     # read log data file
@@ -122,13 +131,15 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     df = spark.read.json(log_files, schema=log_schema)
 
     # filter by actions for song plays
-    df =
+    df = df.filter(df.page == 'NextSong')
 
     # extract columns for users table
-    users_table =
+    user_fields = ['userId', 'firstName', 'lastName', 'gender', 'level']
+    users_table = df.select(user_fields).dropDuplicates(['userId'])
 
     # write users table to parquet files
-    users_table
+    users_out_path = str(output_data_dir + 'users/' + 'users.parquet')
+    users_table.write.parquet(users_out_path)
 
     # create timestamp column from original timestamp column
     get_timestamp = udf()
