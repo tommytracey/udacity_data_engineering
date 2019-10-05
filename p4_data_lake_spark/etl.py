@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.functions import udf, col
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
-from pyspark.sql.types import DoubleType, IntegerType, StringType, StructType, StructField, TimestampType
+from pyspark.sql.types import DoubleType, IntegerType, LongType, StringType, StructType, StructField, TimestampType
 
 
 def aws_keys():
@@ -39,7 +39,7 @@ def create_song_df(spark, song_files):
         3. Returns song data as Spark dataframe
 
     Parameters:
-        spark            : Spark session
+        spark       : Spark session
         song_files  : path to song files containing input data
 
     """
@@ -72,7 +72,7 @@ def create_log_df(spark, log_files):
         3. Returns log data as Spark dataframe
 
     Parameters:
-        spark            : Spark session
+        spark      : Spark session
         log_files  : path to log files containing input data
 
     """
@@ -100,7 +100,7 @@ def create_log_df(spark, log_files):
     ])
 
     # read log data file
-    df = spark.read.json(log_files, schema=log_schema)
+    log_df = spark.read.json(log_files, schema=log_schema)
 
     return log_df
 
