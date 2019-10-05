@@ -16,11 +16,15 @@ def parse_config():
     config.read('dl.cfg')
 
     # set environment variables
-    os.environ['AWS_ACCESS_KEY_ID']=config['AWS_ACCESS_KEY_ID']
-    os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS_SECRET_ACCESS_KEY']
+    os.environ['AWS_ACCESS_KEY_ID']=config['AWS']['KEY']
+    os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['SECRET']
 
-    # return data locations
-    return (config['DATA']['INPUT_DIR'], config['DATA']['OUTPUT_DIR'])
+    # return data paths
+    song_files = config['DATA']['SONG_FILES']
+    log_files = config['DATA']['LOG_FILES']
+    output_data_dir = config['DATA']['OUTPUT_DIR']
+
+    return song_files, log_files, output_data_dir
 
 
 def create_spark_session():
@@ -33,7 +37,7 @@ def create_spark_session():
     return spark
 
 
-def process_song_data(spark, input_data_dir, output_data_dir):
+def process_song_data(spark, song_files, output_data_dir):
     """ ETL process for Sparkify song data
 
     This function:
@@ -42,15 +46,11 @@ def process_song_data(spark, input_data_dir, output_data_dir):
     3. Stores the processed data in S3
 
     Parameters:
-        spark       : Spark session
-        input_data_dir  : files containing song and artist metadata (JSON format)
-        output_data_dir : song and artist dimension tables (parquet format)
+        spark            : Spark session
+        song_files       : path to song files containing input data (JSON format)
+        output_data_dir  : output path for song and artist dimension tables (parquet format)
 
     """
-    # get filepath to song data file
-    ### TODO - update path to 'song_data/*/*/*/*.json'
-    song_data = os.path.join(input_data_dir, 'song-data/A/A/A/*.json')
-
     # define schema
     song_schema = StructType([
         StructField('artist_id', StringType()),
@@ -65,7 +65,8 @@ def process_song_data(spark, input_data_dir, output_data_dir):
     ])
 
     # read song data file
-    df = spark.read.json(song_data, schema=song_schema)
+### TODO - update .cfg path to 'song_data/*/*/*/*.json'
+    df = spark.read.json(song_files, schema=song_schema)
 
     # extract columns to create songs table
     song_fields = ['song_id','title','artist_id','year','duration']
@@ -89,7 +90,7 @@ def process_song_data(spark, input_data_dir, output_data_dir):
     artists_table.write.parquet(artists_out_path)
 
 
-def process_log_data(spark, input_data_dir, output_data_dir):
+def process_log_data(spark, log_data_dir, output_data_dir):
     """ ETL process for Sparkify log data
 
     This function:
@@ -99,15 +100,26 @@ def process_log_data(spark, input_data_dir, output_data_dir):
 
     Parameters:
         spark           : Spark session
-        input_data_dir  : files containing necessary metadata (JSON format)
-        output_data_dir : user and time dimension tables + songplays fact table (parquet format)
+        log_files       : path to log files containing input data (JSON format)
+        output_data_dir : output path for user and time dimension tables + songplays fact table (parquet format)
 
     """
-    # get filepath to log data file
-    log_data =
+    # define schema
+    log_schema = StructType([
+        StructField('', StringType()),
+        StructField('', DoubleType()),
+        StructField('', StringType()),
+        StructField('', DoubleType()),
+        StructField('', StringType()),
+        StructField('', DoubleType()),
+        StructField('', IntegerType()),
+        StructField('', StringType()),
+        StructField('', IntegerType()),
+    ])
 
     # read log data file
-    df =
+### TODO - update .cfg path to 'log_data/*/*/*.json'
+    df = spark.read.json(log_files, schema=log_schema)
 
     # filter by actions for song plays
     df =
@@ -145,15 +157,15 @@ def process_log_data(spark, input_data_dir, output_data_dir):
 def main():
     '''Executes entire ETL process'''
 
-    # parse configuration data
-    input_data_dir, output_data_dir = parse_config()
+    # parse config file and retrieve data paths
+    song_files, log_files, output_data_dir = parse_config()
 
     # initiate Spark session
     spark = create_spark_session()
 
     # run ETL process
-    process_song_data(spark, input_data_dir, output_data_dir)
-    process_log_data(spark, input_data_dir, output_data_dir)
+    process_song_data(spark, song_files, output_data_dir)
+    process_log_data(spark, log_files, output_data_dir)
 
 
 if __name__ == "__main__":
