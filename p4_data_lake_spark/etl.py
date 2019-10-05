@@ -142,12 +142,12 @@ def process_log_data(spark, log_data_dir, output_data_dir):
     users_table.write.parquet(users_out_path)
 
     # create timestamp column from original timestamp column
-    get_timestamp = udf(lambda ts: (ts/1000.0).TimestampType())
-    df = df.withColumn('timestamp', get_timestamp(df.ts))
+    get_timestamp = udf(lambda ts: (ts/1000.0))
+    df = df.withColumn('timestamp', get_timestamp(df.ts).TimestampType())
 
     # create datetime column from original timestamp column
-    get_datetime = udf(lambda ts: datetime.fromtimestamp(ts/1000.0).TimestampType())
-    df = df.withColumn('datetime', get_datetime(df.ts))
+    get_datetime = udf(lambda ts: datetime.fromtimestamp(ts/1000.0))
+    df = df.withColumn('datetime', get_datetime(df.ts).TimestampType())
 
     # extract columns to create time table
     time_table =
