@@ -37,7 +37,7 @@ def create_spark_session():
     return spark
 
 
-def create_song_df(song_files):
+def create_song_df(spark, song_files):
     """Creates dataframe from source song files
 
     This function:
@@ -46,6 +46,7 @@ def create_song_df(song_files):
         3. Returns song data as Spark dataframe
 
     Parameters:
+        spark            : Spark session
         song_files  : path to song files containing input data
 
     """
@@ -69,7 +70,7 @@ def create_song_df(song_files):
     return song_df
 
 
-def create_log_df(log_files):
+def create_log_df(spark, log_files):
     """Creates dataframe from source log files
 
     This function:
@@ -78,6 +79,7 @@ def create_log_df(log_files):
         3. Returns log data as Spark dataframe
 
     Parameters:
+        spark            : Spark session
         log_files  : path to log files containing input data
 
     """
@@ -133,11 +135,11 @@ def process_song_data(spark, song_df, output_data_dir):
 
     # extract columns to create artists table
     artist_fields = ['artist_id','artist_name','artist_location','artist_latitude','artist_longitude']
-    artists_table = song_df.select(artist_fields)
-                    .withColumnRenamed('artist_name','artist')
-                    .withColumnRenamed('artist_location','location')
-                    .withColumnRenamed('artist_latitude','latitude')
-                    .withColumnRenamed('artist_longitude','longitude')
+    artists_table = song_df.select(artist_fields) \
+                    .withColumnRenamed('artist_name','artist') \
+                    .withColumnRenamed('artist_location','location') \
+                    .withColumnRenamed('artist_latitude','latitude') \
+                    .withColumnRenamed('artist_longitude','longitude') \
                     .dropDuplicates(['artist_id'])
 
     # write artists table to parquet files
@@ -194,7 +196,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     time_table.write.partitionBy('year', 'month').parquet(time_out_path)
 
     # join song and log datasets
-    df = df.join(song_df, song_df.title == df.song and song_df.artist_name == df.artist)
+    df = df.join(song_df, song_df.title == df.song and song_df.artist_name == df.artist) \
         .withColumn('songplay_id', monotonically_increasing_id())
 
     # extract columns from joined song and log datasets to create songplays table
@@ -226,8 +228,8 @@ def main():
     spark = create_spark_session()
 
     # create data frames
-    song_df = create_song_df(song_files)
-    log_df = create_log_df(log_files)
+    song_df = create_song_df(spark, song_files)
+    log_df = create_log_df(spark, log_files)
 
     # run ETL process
     process_song_data(spark, song_df, output_data_dir)
