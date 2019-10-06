@@ -1,8 +1,4 @@
 
----
-# >>> IN PROGRESS <<<
----
-
 <img src="assets/apache_spark_logo.png" width="33%" align="right" alt="" title="logo" />
 
 ### Udacity Data Engineering Nanodegree
@@ -12,13 +8,9 @@
 ##### &nbsp;
 
 
-<!-- For instructions on how to setup and run this project, jump to the ['Running the Project'](https://github.com/tommytracey/udacity_data_engineering/tree/master/p4_data_lake_spark#running-the-project) section.
+For instructions on how to setup and run this project, jump to the ['Running the Project'](https://github.com/tommytracey/udacity_data_engineering/tree/master/p4_data_lake_spark#running-the-project) section.
 ##### &nbsp;
--->
 
-<!--
-The write-up below is also available [here as a blog post](https://medium.com/@thomastracey/training-two-agents-to-play-tennis-8285ebfaec5f). ##### &nbsp;
--->
 
 ## Introduction
 A music streaming startup, Sparkify, has grown their user base and song database even more and want to move their data warehouse to a data lake. Their data resides in S3, in a directory of JSON logs on user activity on the app, as well as a directory with JSON metadata on the songs in their app.
@@ -80,8 +72,8 @@ Below is an example of what the data in a log file, `2018-11-12-events.json`, lo
 
 ##### &nbsp;
 
-### Implementation Steps
-Below are steps taken to build each component of this project.
+### Project Rubrik
+Below are Udacity's criteria for completing this project.
 
 #### ETL
 1. Deploy this Spark process on a cluster using AWS.
@@ -95,47 +87,42 @@ Below are steps taken to build each component of this project.
 
 
 ##### &nbsp;
+
 ---
 
 ## My Implementation
 
-*** IN PROGRESS ***
+##### &nbsp;
 
 ### Running the Project
+Here are the steps to run my implementation of this project:
 
-*** COMING SOON ***
+1. Create your own S3 bucket and Amazon EMR cluster with the dependencies listed in `requirements.txt`.
+    - Or, if you're a student in Udacity's Data Engineering Nanodegree (DEND) program, you can use the project workspace.
 
-<!-- Here are the steps to run my implementation of this project:
+1. Add your AWS keys to `dl.cfg` in the project root folder. Do not enclose your key values in quotes.
 
-1. Create a python environment with the dependencies listed in `requirements.txt` (or `requirements_full.txt` for the complete set of packages).
+1. Update the data paths within the `main()` function in `etl.py`. These paths should point to the input and output directories you are using.
+   - A subset of the input data can be found in the `/data` directory.
 
-1. Add your AWS keys to `dl.cfg` in the project root folder.
-
-1. Create a data warehouse cluster in AWS Redshift:
-`$ python create_cluster.py` The new cluster endpoint and ARN are automatically saved to `dwh.cfg`.
-
-1. Create the Postgres tables:
-`$ python create_tables.py`
-
-1. Extract data from source files and load it into the datawarehouse tables:
+1. Run the ETL process:
 `$ python etl.py`
 
-1. Run test queries and create visualizations for data analysis (done via the notebook [`analytic_queries.ipynb`](analytic_queries.ipynb)).
+1. Examine your output data directory to verify the data is properly partitioned and stored in parquet format.
+    - A sample of my output can be found in the `/analytics` directory.
 
-1. Delete the cluster: `$ python delete_cluster.py`
+1. Run a few Spark queries on the parquet output files to verify the tables are structured correctly and populated with data. This can be done via the notebook [`test-outputs.ipynb`](test-outputs.ipynb).
 
--->
+1. Delete your AWS cluster and S3 bucket (if needed). This must be done manually.
+
 
 ##### &nbsp;
 
 ### Schema for Song Play Analysis
-Using the song and event datasets, here is a star schema optimized for queries on song play analysis. This includes the following tables.
-
-##### &nbsp;
+Using the song and event datasets, here is a star schema designed to support song play analysis.
 
 #### Fact Table
 - **songplays** &mdash; records in event data associated with song plays, i.e. records with `page = NextSong`
-
 
 #### Dimension Tables
 - **users** &mdash; users in the app
@@ -143,131 +130,15 @@ Using the song and event datasets, here is a star schema optimized for queries o
 - **artists** &mdash; artists in music database
 - **time** &mdash; timestamps of records in songplays broken down into specific units
 
-#### Staging Tables
-- **staging_events** &mdash; temporary table for extracting event data from log files
-- **staging_songs** &mdash; temporary table for extracting song metadata from source files
-
-
-##### &nbsp;
-
 #### Schema Diagram
 
-<img src="assets/sparify-schema.png" width="100%" align="top-left" alt="" title="Sparkify Schema" />
+<img src="assets/sparkify-schema.png" width="100%" align="top-left" alt="" title="Sparkify Schema" />
 
 
 ##### &nbsp;
 
-### Query Examples
+### Spark Query Example
 
-<!--
-#### 1. Create `staging_songs` table
-```sql
-CREATE TABLE IF NOT EXISTS staging_songs (
-         artist_id VARCHAR,
-   artist_latitude FLOAT,
-   artist_location VARCHAR(1000),
-  artist_longitude FLOAT,
-       artist_name VARCHAR(500),
-          duration FLOAT,
-         num_songs INTEGER,
-           song_id VARCHAR,
-             title VARCHAR(500),
-              year INTEGER
-);
-```
-[view source code](https://github.com/tommytracey/udacity_data_engineering/blob/master/p3_data_warehouse_redshift/sql_queries.py#L47)
+<img src="assets/songs-table-verify.png" width="70%" align="top-left" alt="" title="Sample query" />
 
-#### 2. Create `songs` dimension table
-```sql
-CREATE TABLE IF NOT EXISTS songs (
-    song_id VARCHAR(100) PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
-  artist_id VARCHAR(50) NOT NULL REFERENCES artists(artist_id) DISTKEY,
-       year INTEGER,
-   duration DOUBLE PRECISION
-);
-```
-[view source code](https://github.com/tommytracey/udacity_data_engineering/blob/master/p3_data_warehouse_redshift/sql_queries.py#L74)
-
-#### 3. Load song source data into `staging_songs`
-```sql
-COPY staging_songs
-FROM 's3://udacity-dend/song_data'
-CREDENTIALS 'aws_iam_role={config['IAM_ROLE']['arn']}'
-REGION 'us-west-2'
-FORMAT AS JSON 'auto';
-```
-[view source code](https://github.com/tommytracey/udacity_data_engineering/blob/master/p3_data_warehouse_redshift/sql_queries.py#L135)
-
-#### 4. Load song data from `staging_songs` table to `songs` dimension table
-```sql
-INSERT INTO songs (song_id, title, artist_id, year, duration)
-SELECT DISTINCT song_id,
-                title,
-                artist_id,
-                year,
-                duration
-FROM staging_songs
-WHERE song_id IS NOT NULL;
-```
-[view source code](https://github.com/tommytracey/udacity_data_engineering/blob/master/p3_data_warehouse_redshift/sql_queries.py#L156)
-
-##### &nbsp;
-
-A complete set of queries is available in [sql_queries.py](sql_queries.py).
-
--->
-
-##### &nbsp;
-
-<!--
-### Analysis
-The following graphs provide some insight into user behavior and the most popular artists and songs on Sparkify. The source code and steps taken to generate this analysis is available in the notebook [`analytic_queries.ipynb`](analytic_queries.ipynb).
-
-#### Summary of Key Insights
-1. Sparkify has more paid users than free users. This is surprising as usually apps have an order of magnitude more free users than paid users.
-1. Sparkify has more than 2x as many female users than male users. And, in line with this ratio, female users generate more than 2/3 of the songplays.
-1. The most popular artist and song &mdash; Dwight Yoakam, _You're The One_ &mdash; have more than 3x the number of songplays as any other artist or song.
-1. Users seem to listen to music at roughly the same frequency throughout the day.
-
-##### &nbsp;
-
-#### Graphs
-
-<img src="assets/most_popular_artists.png" width="100%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/most_popular_songs.png" width="100%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/songplays_by_hour.png" width="100%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/users_by_level.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/songplays_by_level.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/users_by_gender.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/songplays_by_gender.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/songplays_by_gender_and_level.png" width="100%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
-<img src="assets/final_counts.png" width="70%" align="upper-left" alt="" title="DWH Analysis" />
-
-##### &nbsp;
-
--->
+_view source code in [test-outputs.ipynb](test-outputs.ipynb)_
