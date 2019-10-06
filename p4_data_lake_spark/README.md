@@ -17,8 +17,6 @@ A music streaming startup, Sparkify, has grown their user base and song database
 
 As their data engineer, you are tasked with building an ETL pipeline that extracts their data from S3, processes them using Spark, and loads the data back into S3 as a set of dimensional tables. This will allow their analytics team to continue finding insights in what songs their users are listening to.
 
-You'll be able to test your database and ETL pipeline by running queries given to you by the analytics team from Sparkify and compare your results with their expected results.
-
 
 ##### &nbsp;
 
@@ -141,4 +139,4 @@ Using the song and event datasets, here is a star schema designed to support son
 
 <img src="assets/songs-table-verify.png" width="70%" align="top-left" alt="" title="Sample query" />
 
-_view source code in [test-outputs.ipynb](test-outputs.ipynb)_
+_view all table queries in [test-outputs.ipynb](test-outputs.ipynb)_
