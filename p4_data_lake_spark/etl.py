@@ -2,13 +2,15 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col, to_timestamp, monotonically_increasing_id
-from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format, to_date
+from pyspark.sql.functions import udf, col, monotonically_increasing_id
+from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear
 from pyspark.sql.types import DoubleType, IntegerType, LongType, StringType, StructType, StructField, TimestampType
 
 
 def aws_keys():
     '''Parses configuration file and sets AWS keys'''
+
+    print("\nParsing config file...\n")
 
     # parse config file
     config = configparser.ConfigParser()
@@ -22,9 +24,11 @@ def aws_keys():
 def create_spark_session():
     '''Creates a new Spark session or gets an existing one'''
 
+    print("Creating Spark session...\n")
+
     spark = SparkSession \
         .builder \
-        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
+        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.5") \
         .getOrCreate()
     return spark
 
@@ -43,6 +47,8 @@ def create_song_df(spark, song_files):
 
     """
 
+    print("\nCreating songs dataframe...\n")
+
     # define schema
     song_schema = StructType([
         StructField('artist_id', StringType(), False),
@@ -52,8 +58,8 @@ def create_song_df(spark, song_files):
         StructField('artist_name', StringType(), False),
         StructField('song_id', StringType(), False),
         StructField('title', StringType(), False),
-        StructField('duration', DoubleType(), False),
-        StructField('year', IntegerType(), False)
+        StructField('duration', DoubleType(), True),
+        StructField('year', IntegerType(), True)
     ])
 
     # read song data file
@@ -76,9 +82,11 @@ def create_log_df(spark, log_files):
 
     """
 
+    print("Creating logs dataframe...\n")
+
     # define schema
     log_schema = StructType([
-        StructField('artist', StringType(), True),
+        StructField('artist', StringType(), False),
         StructField('auth', StringType(), True),
         StructField('firstName', StringType(), True),
         StructField('gender', StringType(), True),
@@ -88,14 +96,14 @@ def create_log_df(spark, log_files):
         StructField('level', StringType(), True),
         StructField('location', StringType(), True),
         StructField('method', StringType(), True),
-        StructField('page', StringType(), True),
+        StructField('page', StringType(), False),
         StructField('registration', DoubleType(), True),
         StructField('sessionId', LongType(), True),
-        StructField('song', StringType(), True),
+        StructField('song', StringType(), False),
         StructField('status', LongType(), True),
-        StructField('ts', LongType(), True),
+        StructField('ts', LongType(), False),
         StructField('userAgent', StringType(), True),
-        StructField('userId', StringType(), True),
+        StructField('userId', StringType(), False),
     ])
 
     # read log data file
@@ -117,6 +125,9 @@ def process_song_data(spark, song_df, output_data_dir):
         output_data_dir  : output path for newly created tables (parquet format)
 
     """
+
+    print("Processing song data...\n")
+
     # extract columns to create songs table
     song_fields = ['song_id','title','artist_id','year','duration']
     songs_table = song_df.select(song_fields).dropDuplicates(['song_id'])
@@ -154,6 +165,8 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
 
     """
 
+    print("Processing log data...\n")
+
     # filter by actions for song plays
     df = log_df.filter(log_df.page == 'NextSong')
 
@@ -165,8 +178,7 @@ def process_log_data(spark, song_df, log_df, output_data_dir):
     users_out_path = str(output_data_dir + 'users/' + 'users.parquet')
     users_table.write.parquet(users_out_path, mode='overwrite')
 
-    # create timestamp column from original timestamp column
-    time_format = 'yyyy-MM-dd HH:MM:ss z'
+    # create timestamp column from original ts column
     get_timestamp = udf(lambda x: datetime.fromtimestamp(x/1000), TimestampType())
     df = df.withColumn('timestamp', get_timestamp(df.ts))
 
@@ -211,13 +223,9 @@ def main():
     '''Executes entire ETL process'''
 
     # define data paths
-    # song_files = ''
-    # log_files = ''
-    # output_data_dir = ''
-
-    song_files = 'data/song_data/A/A/*/*.json'   # relative path for testing
-    log_files = 'data/log_data/*.json'     # relative path for testing
-    output_data_dir = 'data/output_data/'   # relative path for testing
+    song_files = 's3a://udacity-dend/song_data/*/*/*/*.json'
+    log_files = 's3a://udacity-dend/log_data/*/*/*.json'
+    output_data_dir = 's3a://tommytracey-dend/analytics/'
 
     # parse config file and set AWS keys
     aws_keys()
@@ -233,7 +241,7 @@ def main():
     process_song_data(spark, song_df, output_data_dir)
     process_log_data(spark, song_df, log_df, output_data_dir)
 
-    print("ETL process completed")
+    print("\nETL process completed\n")
 
 if __name__ == "__main__":
     main()
