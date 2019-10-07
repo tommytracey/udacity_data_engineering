@@ -1,2 +1,2 @@
 # udacity_data_engineering
-repo contains all work completed as part of the Udacity Data Engineering Nanodegree program
+This repo contains all work completed as part of the [Udacity Data Engineering Nanodegree program](https://www.udacity.com/course/data-engineer-nanodegree--nd027).
